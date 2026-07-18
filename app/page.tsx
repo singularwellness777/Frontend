@@ -1,65 +1,103 @@
-import Image from "next/image";
+import { Banner } from "@/components/banner";
+import { CategoryGrid } from "@/components/category-grid";
+import { Favorites } from "@/components/favorites";
+import { FollowUs } from "@/components/follow-us";
+import { FriggFeature } from "@/components/frigg-feature";
+import { Hero } from "@/components/hero";
+import { ProductSection } from "@/components/product-section";
+import { ShopTheLook } from "@/components/shop-the-look";
+import { SiteFooter } from "@/components/site-footer";
+import { SiteHeader } from "@/components/site-header";
+import { Testimonials } from "@/components/testimonials";
+import { Press, Values } from "@/components/values";
+import { BEST_SELLERS, FAVORITES } from "@/lib/content";
+import { getStorefrontProducts } from "@/lib/storefront";
 
-export default function Home() {
+/**
+ * The catalogue is read per request so edits in Admin appear on the storefront
+ * immediately. If this ever needs to be cheaper, swap to `export const
+ * revalidate = <seconds>` and have Admin call `revalidatePath("/")` on write.
+ */
+export const dynamic = "force-dynamic";
+
+export default async function Home() {
+  const products = await getStorefrontProducts();
+  const live = products.all.length > 0;
+
+  // The placeholder content is a different brand entirely, so it's all-or-
+  // nothing: once there's a real catalogue, the product sections come from it
+  // and empty ones drop out rather than backfilling with unrelated stock.
+  const bestSellers = live ? products.all.slice(0, 4) : BEST_SELLERS;
+  const categories = Object.keys(products.byCategory).sort();
+  const [firstCategory, secondCategory] = categories;
+  const sections = live
+    ? [
+        { cta: `Shop all ${firstCategory}`, products: products.byCategory[firstCategory] },
+        secondCategory
+          ? {
+              cta: `Shop all ${secondCategory}`,
+              products: products.byCategory[secondCategory],
+            }
+          : null,
+      ].filter((s) => s !== null)
+    : [
+        { cta: "Shop all feeding", products: FAVORITES.Feeding },
+        { cta: "Shop all FRIGG", products: FAVORITES.Pacifiers },
+      ];
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
+    <>
+      <SiteHeader />
+      <main>
+        <Hero />
+
+        <Favorites catalogue={products.byCategory} />
+
+        <Banner
+          title="Bubbly bath moments"
+          body="Thoughtful bath essentials for real-life routines."
+          cta="Shop bath & care"
+          tone="stone"
+          alt="Child playing in a bubble bath"
         />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
+
+        <ProductSection
+          title="Best Sellers"
+          cta="Shop best sellers"
+          products={bestSellers}
+        />
+
+        <Banner
+          title="Tiny tabletops"
+          body="Designed for little hands, made to match your table."
+          cta="Shop feeding"
+          tone="sage"
+          align="left"
+          alt="Family gathered around a kitchen table"
+        />
+
+        {sections[0] ? (
+          <ProductSection cta={sections[0].cta} products={sections[0].products} />
+        ) : null}
+
+        <FriggFeature />
+
+        {sections[1] ? (
+          <ProductSection cta={sections[1].cta} products={sections[1].products} />
+        ) : null}
+
+        <CategoryGrid />
+
+        <Values />
+        <Press />
+
+        <ShopTheLook />
+
+        <Testimonials />
+
+        <FollowUs />
       </main>
-    </div>
+      <SiteFooter />
+    </>
   );
 }

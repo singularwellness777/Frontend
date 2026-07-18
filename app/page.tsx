@@ -11,6 +11,7 @@ import { SiteHeader } from "@/components/site-header";
 import { Testimonials } from "@/components/testimonials";
 import { Press, Values } from "@/components/values";
 import { BEST_SELLERS, FAVORITES } from "@/lib/content";
+import { getHomeMedia } from "@/lib/data";
 import { getStorefrontProducts } from "@/lib/storefront";
 
 /**
@@ -22,6 +23,8 @@ export const dynamic = "force-dynamic";
 
 export default async function Home() {
   const products = await getStorefrontProducts();
+  const homeMedia = await getHomeMedia();
+  const heroMedia = homeMedia.find((item) => item.placement === "campaign");
   const live = products.all.length > 0;
 
   // The placeholder content is a different brand entirely, so it's all-or-
@@ -49,7 +52,7 @@ export default async function Home() {
     <>
       <SiteHeader />
       <main>
-        <Hero />
+        <Hero media={heroMedia} />
 
         <Favorites catalogue={products.byCategory} />
 

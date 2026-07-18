@@ -5,11 +5,11 @@ export const BRAND = "mushie";
 export const ANNOUNCEMENT = "Free shipping on US orders $35+";
 
 export const NAV = [
-  { label: "New", href: "#" },
-  { label: "Shop", href: "#" },
-  { label: "Collections", href: "#" },
-  { label: "Gifting", href: "#" },
-  { label: "About", href: "#" },
+  { label: "New", href: "/" },
+  { label: "Shop", href: "/shop" },
+  { label: "Collections", href: "/collections" },
+  { label: "Gifting", href: "/gifting" },
+  { label: "About", href: "/about" },
 ];
 
 export type Product = {

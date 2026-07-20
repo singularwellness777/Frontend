@@ -1,6 +1,14 @@
 import { ANNOUNCEMENT, BRAND, NAV } from "@/lib/content";
+import { getNavCategories } from "@/lib/data";
+import type { NavCategory } from "@/lib/data";
 
-export function SiteHeader() {
+export async function SiteHeader() {
+  const adminCategories = await getNavCategories();
+  const navItems: Array<NavCategory | { label: string; href: string }> = [
+    ...NAV.map((item) => ({ label: item.label, href: item.href })),
+    ...adminCategories,
+  ];
+
   return (
     <header className="sticky top-0 z-50">
       <div className="bg-ink py-2 text-center">
@@ -14,15 +22,37 @@ export function SiteHeader() {
           </a>
 
           <nav className="hidden items-center gap-7 lg:flex">
-            {NAV.map((item) => (
-              <a
-                key={item.label}
-                href={item.href}
-                className="eyebrow text-ink/80 transition-colors hover:text-ink"
-              >
-                {item.label}
-              </a>
-            ))}
+            {navItems.map((item) => {
+              const href = "href" in item ? item.href : "#";
+              const subcategories = "subcategories" in item ? item.subcategories : undefined;
+              const hasSubcategories = Array.isArray(subcategories) && subcategories.length > 0;
+
+              return (
+                <div key={item.label} className="group relative">
+                  <a
+                    href={href}
+                    className="eyebrow text-ink/80 transition-colors hover:text-ink"
+                  >
+                    {item.label}
+                  </a>
+                  {hasSubcategories ? (
+                    <div className="pointer-events-none absolute left-0 top-full z-20 mt-3 hidden min-w-[220px] rounded-3xl border border-line bg-paper p-4 opacity-0 transition duration-150 group-hover:pointer-events-auto group-hover:block group-hover:opacity-100">
+                      <div className="space-y-2">
+                        {subcategories.map((subcategory) => (
+                          <a
+                            key={subcategory.label}
+                            href={subcategory.linkUrl}
+                            className="block rounded-full px-3 py-2 text-sm text-ink/80 transition-colors hover:bg-ink/5 hover:text-ink"
+                          >
+                            {subcategory.label}
+                          </a>
+                        ))}
+                      </div>
+                    </div>
+                  ) : null}
+                </div>
+              );
+            })}
           </nav>
 
           <form className="ml-auto hidden max-w-md flex-1 items-center gap-2 border-b border-line pb-1 md:flex">

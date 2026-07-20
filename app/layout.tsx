@@ -12,6 +12,10 @@ export const metadata: Metadata = {
   title: "mushie — Modern essentials for little ones",
   description:
     "Thoughtfully designed feeding, bath, bedding and play essentials for babies and toddlers.",
+  icons: {
+    icon: "/tab-icon.svg",
+    apple: "/tab-icon.svg",
+  },
 };
 
 export default function RootLayout({

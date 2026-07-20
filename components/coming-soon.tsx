@@ -56,8 +56,14 @@ export function ComingSoon({ heading, message }: ComingSoonProps) {
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-line py-6 text-center text-xs text-muted">
-        &copy; {new Date().getFullYear()} {BRAND}. All rights reserved.
+      <footer className="border-t border-line py-6 text-center text-xs text-muted flex flex-col items-center gap-2">
+        <p>&copy; {new Date().getFullYear()} {BRAND}. All rights reserved.</p>
+        <a
+          href="/api/preview"
+          className="text-[11px] tracking-wider uppercase text-muted/60 hover:text-ink underline transition"
+        >
+          Developer Preview Storefront
+        </a>
       </footer>
     </div>
   );

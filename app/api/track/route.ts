@@ -30,11 +30,24 @@ export async function POST(request: Request) {
       return NextResponse.json({ ok: false, error: "Missing ids" }, { status: 400 });
     }
 
+    // Extract Vercel Geolocation headers for live map & location analytics
+    const country = request.headers.get("x-vercel-ip-country") || null;
+    const rawCity = request.headers.get("x-vercel-ip-city");
+    const city = rawCity ? decodeURIComponent(rawCity) : null;
+    const rawLat = request.headers.get("x-vercel-ip-latitude");
+    const rawLng = request.headers.get("x-vercel-ip-longitude");
+    const latitude = rawLat ? Math.round(parseFloat(rawLat) * 10) / 10 : null;
+    const longitude = rawLng ? Math.round(parseFloat(rawLng) * 10) / 10 : null;
+
     const { error } = await supabaseAdmin.from("storefront_events").insert({
       session_id,
       visitor_id,
       path: path || "/",
       referrer: referrer || null,
+      country,
+      city,
+      latitude,
+      longitude,
       device_type: device_type || "desktop",
       browser: browser || "Browser",
       os: os || "OS",

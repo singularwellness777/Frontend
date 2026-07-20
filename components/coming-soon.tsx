@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { BRAND } from "@/lib/content";
 
 interface ComingSoonProps {
@@ -8,6 +9,19 @@ interface ComingSoonProps {
 }
 
 export function ComingSoon({ heading, message }: ComingSoonProps) {
+  const [isLocalhost, setIsLocalhost] = useState(false);
+
+  useEffect(() => {
+    if (
+      typeof window !== "undefined" &&
+      (window.location.hostname === "localhost" ||
+        window.location.hostname === "127.0.0.1" ||
+        window.location.hostname.endsWith(".local"))
+    ) {
+      setIsLocalhost(true);
+    }
+  }, []);
+
   const displayHeading = heading?.trim() || "Something extraordinary is coming";
   const displayMessage =
     message?.trim() || "Our new collection is being crafted. Please return shortly.";
@@ -58,12 +72,14 @@ export function ComingSoon({ heading, message }: ComingSoonProps) {
       {/* Footer */}
       <footer className="border-t border-line py-6 text-center text-xs text-muted flex flex-col items-center gap-2">
         <p>&copy; {new Date().getFullYear()} {BRAND}. All rights reserved.</p>
-        <a
-          href="/api/preview"
-          className="text-[11px] tracking-wider uppercase text-muted/60 hover:text-ink underline transition"
-        >
-          Developer Preview Storefront
-        </a>
+        {isLocalhost && (
+          <a
+            href="/api/preview"
+            className="text-[11px] tracking-wider uppercase text-muted/60 hover:text-ink underline transition"
+          >
+            Developer Preview Storefront
+          </a>
+        )}
       </footer>
     </div>
   );

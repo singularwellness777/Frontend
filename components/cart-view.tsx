@@ -236,3 +236,5 @@ export function CartView() {
     </div>
   );
 }
+
+export default CartView;

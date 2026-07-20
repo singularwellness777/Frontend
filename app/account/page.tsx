@@ -1,6 +1,6 @@
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
-import { AccountView } from "@/components/account-view";
+import AccountView from "@/components/account-view";
 
 export const dynamic = "force-dynamic";
 

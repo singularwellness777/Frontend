@@ -194,3 +194,5 @@ export function AccountView() {
     </div>
   );
 }
+
+export default AccountView;

@@ -10,16 +10,17 @@ export function Hero({ media }: { media?: HomeMedia }) {
   const subtitle = media?.subtitle;
   const href = media?.linkUrl;
   const buttonLabel = media?.linkUrl ? "Shop now" : undefined;
-  const imageSrc = media?.mediaType === "image" ? media?.src : media?.poster;
 
   return (
     <section className="relative">
       <Media
         tone="moss"
-        alt={media?.alt ?? "Hero image for the storefront"}
+        alt={media?.alt ?? "Hero media for the storefront"}
         overlay={hasOverlayContent}
         className="h-[68vh] min-h-[420px] w-full lg:h-[78vh]"
-        src={imageSrc}
+        src={media?.src}
+        mediaType={media?.mediaType}
+        poster={media?.poster}
       />
       {hasOverlayContent ? (
         <div className="absolute inset-0 flex items-center">

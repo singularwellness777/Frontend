@@ -22,10 +22,14 @@ const TONES: Record<Tone, [string, string]> = {
   stone: ["#e3e0da", "#c3bdb3"],
 };
 
+function isVideo(url?: string, type?: "image" | "video"): boolean {
+  if (type === "video") return true;
+  if (!url) return false;
+  return /\.(mp4|webm|mov|ogg|m4v)($|\?)/i.test(url) || url.includes("video/");
+}
+
 /**
- * Photography, with the tone gradient as its fallback. Callers that have a real
- * asset pass `src`; callers that don't (the built-in placeholder content) still
- * pass only `tone` + `alt` and get the gradient as before.
+ * Photography and Video component, with tone gradient fallback.
  */
 export function Media({
   tone = "cream",
@@ -33,24 +37,31 @@ export function Media({
   className = "",
   overlay = false,
   src,
+  mediaType,
+  poster,
   children,
 }: {
   tone?: Tone;
   alt?: string;
   className?: string;
-  /** Darken the image so overlaid text stays legible. */
+  /** Darken the image/video so overlaid text stays legible. */
   overlay?: boolean;
-  /** Catalogue image URL. Falls back to the tone gradient when empty or error. */
+  /** Catalogue image or video URL. Falls back to the tone gradient when empty or error. */
   src?: string;
+  /** Media type: image or video. Inferred from file extension if omitted. */
+  mediaType?: "image" | "video";
+  /** Optional poster image URL for video. */
+  poster?: string;
   children?: ReactNode;
 }) {
-  const [imageError, setImageError] = useState(false);
+  const [mediaError, setMediaError] = useState(false);
   const [from, to] = TONES[tone];
   const style: CSSProperties = {
     backgroundImage: `radial-gradient(120% 90% at 25% 15%, ${from} 0%, ${to} 70%, ${to} 100%)`,
   };
 
-  const showImage = src && !imageError;
+  const showMedia = Boolean(src && !mediaError);
+  const isVid = isVideo(src, mediaType);
 
   return (
     <div
@@ -59,16 +70,29 @@ export function Media({
       style={style}
       className={`relative overflow-hidden ${className}`}
     >
-      {showImage ? (
-        <Image
-          src={src}
-          alt={alt ?? ""}
-          fill
-          unoptimized
-          onError={() => setImageError(true)}
-          sizes="(min-width: 768px) 25vw, 50vw"
-          className="object-cover"
-        />
+      {showMedia ? (
+        isVid ? (
+          <video
+            src={src}
+            poster={poster}
+            autoPlay
+            loop
+            muted
+            playsInline
+            onError={() => setMediaError(true)}
+            className="absolute inset-0 h-full w-full object-cover"
+          />
+        ) : (
+          <Image
+            src={src!}
+            alt={alt ?? ""}
+            fill
+            unoptimized
+            onError={() => setMediaError(true)}
+            sizes="(min-width: 768px) 25vw, 50vw"
+            className="object-cover"
+          />
+        )
       ) : (
         <div
           aria-hidden

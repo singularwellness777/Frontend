@@ -47,6 +47,8 @@ export default async function ProductPage({ params }: ProductPageProps) {
   const category = dbProduct?.category || "Catalogue";
   const tagline = dbProduct?.tagline || "";
   const images = dbProduct?.images?.length ? dbProduct.images : dbProduct?.image ? [dbProduct.image] : fallbackProduct?.image ? [fallbackProduct.image] : [];
+  const modelMedia = dbProduct?.modelMedia || [];
+  const bannerMedia = dbProduct?.bannerMedia || [];
   const description = dbProduct?.description || ["Thoughtfully designed and crafted with premium, sustainable materials for everyday use."];
   const details = dbProduct?.details || [];
   const materials = dbProduct?.materials || [];
@@ -63,6 +65,8 @@ export default async function ProductPage({ params }: ProductPageProps) {
           category={category}
           tagline={tagline}
           images={images}
+          modelMedia={modelMedia}
+          bannerMedia={bannerMedia}
           description={description}
           details={details}
           materials={materials}

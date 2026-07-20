@@ -20,10 +20,17 @@ interface ProductDetailViewProps {
   category: string;
   tagline: string;
   images: string[];
+  modelMedia?: string[];
+  bannerMedia?: string[];
   description: string[];
   details: { label: string; value: string }[];
   materials: string[];
   reviews: ReviewItem[];
+}
+
+function isVideoUrl(url: string) {
+  if (!url) return false;
+  return /\.(mp4|webm|mov|ogg|m4v)($|\?)/i.test(url) || url.includes("video/");
 }
 
 export function ProductDetailView({
@@ -33,6 +40,8 @@ export function ProductDetailView({
   category,
   tagline,
   images,
+  modelMedia = [],
+  bannerMedia = [],
   description,
   details,
   materials,
@@ -41,7 +50,9 @@ export function ProductDetailView({
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [quantity, setQuantity] = useState(1);
   const [addedToCart, setAddedToCart] = useState(false);
-  const [activeTab, setActiveTab] = useState<"description" | "details" | "materials">("description");
+  const [activeTab, setActiveTab] = useState<
+    "description" | "details" | "materials"
+  >("description");
 
   const mainImage = images[selectedImageIndex] || "";
   const avgRating = reviews.length
@@ -66,9 +77,13 @@ export function ProductDetailView({
     <div className="mx-auto max-w-[1400px] px-6 py-12 lg:px-10 lg:py-16">
       {/* Breadcrumbs */}
       <nav className="mb-8 text-xs text-muted flex items-center gap-2">
-        <a href="/" className="hover:text-ink transition">Home</a>
+        <a href="/" className="hover:text-ink transition">
+          Home
+        </a>
         <span>/</span>
-        <a href="/shop" className="hover:text-ink transition">Shop</a>
+        <a href="/shop" className="hover:text-ink transition">
+          Shop
+        </a>
         <span>/</span>
         <span className="text-ink font-medium">{name}</span>
       </nav>
@@ -103,7 +118,11 @@ export function ProductDetailView({
                       : "border-line opacity-70 hover:opacity-100"
                   }`}
                 >
-                  <img src={img} alt={`${name} ${idx + 1}`} className="h-full w-full object-cover" />
+                  <img
+                    src={img}
+                    alt={`${name} ${idx + 1}`}
+                    className="h-full w-full object-cover"
+                  />
                 </button>
               ))}
             </div>
@@ -117,7 +136,9 @@ export function ProductDetailView({
             <h1 className="mt-1 text-3xl font-light tracking-tight text-ink sm:text-4xl">
               {name}
             </h1>
-            {tagline && <p className="mt-2 text-sm text-muted italic">{tagline}</p>}
+            {tagline && (
+              <p className="mt-2 text-sm text-muted italic">{tagline}</p>
+            )}
           </div>
 
           {/* Price & Reviews */}
@@ -129,7 +150,9 @@ export function ProductDetailView({
           {/* Quantity & Add to Cart */}
           <div className="space-y-4 pt-2">
             <div className="flex items-center gap-4">
-              <span className="text-xs uppercase tracking-wider text-muted">Quantity</span>
+              <span className="text-xs uppercase tracking-wider text-muted">
+                Quantity
+              </span>
               <div className="flex items-center rounded-full border border-line bg-white">
                 <button
                   onClick={() => setQuantity((q) => Math.max(1, q - 1))}
@@ -137,7 +160,9 @@ export function ProductDetailView({
                 >
                   -
                 </button>
-                <span className="px-3 py-1.5 text-xs font-medium text-ink">{quantity}</span>
+                <span className="px-3 py-1.5 text-xs font-medium text-ink">
+                  {quantity}
+                </span>
                 <button
                   onClick={() => setQuantity((q) => q + 1)}
                   className="px-3 py-1.5 text-sm text-ink hover:bg-cream rounded-r-full transition"
@@ -224,7 +249,10 @@ export function ProductDetailView({
               {activeTab === "details" && (
                 <ul className="space-y-2">
                   {details.map((item, idx) => (
-                    <li key={idx} className="flex justify-between border-b border-line/50 pb-1.5">
+                    <li
+                      key={idx}
+                      className="flex justify-between border-b border-line/50 pb-1.5"
+                    >
                       <span className="font-medium text-ink">{item.label}</span>
                       <span>{item.value}</span>
                     </li>
@@ -243,6 +271,73 @@ export function ProductDetailView({
           </div>
         </div>
       </div>
+
+      {/* Lifestyle / Model Shots Section */}
+      {modelMedia.length > 0 && (
+        <section className="mt-16 border-t border-line/60 pt-16 lg:mt-24 lg:pt-20">
+          <div className="mb-10 text-center max-w-xl mx-auto">
+            <span className="eyebrow text-muted block mb-1">Lifestyle</span>
+            <h2 className="text-2xl font-light tracking-tight text-ink sm:text-3xl">
+              Worn & In Motion
+            </h2>
+            <p className="mt-2 text-sm text-muted">
+              See how it looks and fits in real life.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {modelMedia.map((mediaUrl, idx) => (
+              <div
+                key={idx}
+                className="group relative aspect-[4/5] w-full overflow-hidden rounded-2xl bg-cream border border-line/60 shadow-sm"
+              >
+                {isVideoUrl(mediaUrl) ? (
+                  <video
+                    src={mediaUrl}
+                    autoPlay
+                    loop
+                    muted
+                    playsInline
+                    className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                  />
+                ) : (
+                  <img
+                    src={mediaUrl}
+                    alt={`${name} lifestyle ${idx + 1}`}
+                    className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                  />
+                )}
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* Full-Width Banners / A+ Content Section */}
+      {bannerMedia.length > 0 && (
+        <section className="mt-16 lg:mt-24 w-full overflow-hidden rounded-3xl border border-line/60 bg-cream shadow-md flex flex-col">
+          {bannerMedia.map((bannerUrl, idx) => (
+            <div key={idx} className="relative w-full">
+              {isVideoUrl(bannerUrl) ? (
+                <video
+                  src={bannerUrl}
+                  autoPlay
+                  loop
+                  muted
+                  playsInline
+                  className="w-full h-auto block"
+                />
+              ) : (
+                <img
+                  src={bannerUrl}
+                  alt={`${name} banner ${idx + 1}`}
+                  className="w-full h-auto block"
+                />
+              )}
+            </div>
+          ))}
+        </section>
+      )}
     </div>
   );
 }

@@ -1,11 +1,15 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { supabase } from "@/lib/supabase";
+import type { User } from "@supabase/supabase-js";
 
 interface CartItem {
   id: string;
+  slug: string;
   name: string;
   price: number;
+  priceString: string;
   image: string;
   quantity: number;
   category: string;
@@ -14,16 +18,20 @@ interface CartItem {
 const INITIAL_CART_ITEMS: CartItem[] = [
   {
     id: "c1",
+    slug: "silicone-baby-bib",
     name: "Silicone Baby Bib",
     price: 16.0,
+    priceString: "$16.00",
     image: "https://vtfnzovghklayryozniz.supabase.co/storage/v1/object/public/media/310a5250-27fa-4def-adf7-d24de3700619.webp",
     quantity: 1,
     category: "Feeding",
   },
   {
     id: "c2",
+    slug: "mini-toddler-bike",
     name: "Mini Toddler Bike",
     price: 89.0,
+    priceString: "$89.00",
     image: "https://vtfnzovghklayryozniz.supabase.co/storage/v1/object/public/media/310a5250-27fa-4def-adf7-d24de3700619.webp",
     quantity: 1,
     category: "Play",
@@ -31,27 +39,105 @@ const INITIAL_CART_ITEMS: CartItem[] = [
 ];
 
 export function CartView() {
+  const [user, setUser] = useState<User | null>(null);
   const [items, setItems] = useState<CartItem[]>(INITIAL_CART_ITEMS);
+  const [loading, setLoading] = useState(true);
   const [promoCode, setPromoCode] = useState("");
   const [appliedDiscount, setAppliedDiscount] = useState(0);
   const [promoError, setPromoError] = useState("");
+  const [orderPlaced, setOrderPlaced] = useState(false);
+  const [isPlacingOrder, setIsPlacingOrder] = useState(false);
 
-  const updateQuantity = (id: string, delta: number) => {
+  useEffect(() => {
+    async function loadCartAndUser() {
+      if (!supabase) {
+        setLoading(false);
+        return;
+      }
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        setUser(user);
+
+        if (user) {
+          // Fetch cart from Supabase
+          const { data: dbCarts, error } = await supabase
+            .from("carts")
+            .select("*")
+            .eq("user_id", user.id);
+
+          if (!error && dbCarts && dbCarts.length > 0) {
+            const mappedItems: CartItem[] = dbCarts.map((row) => {
+              const numPrice = parseFloat((row.price || "").replace(/[^0-9.]/g, "")) || 0;
+              return {
+                id: `${row.product_slug}-${row.material}`,
+                slug: row.product_slug,
+                name: row.name || "Product",
+                price: numPrice,
+                priceString: row.price || "$0.00",
+                image: row.image || "",
+                quantity: row.quantity || 1,
+                category: "Catalogue",
+              };
+            });
+            setItems(mappedItems);
+          }
+        }
+      } catch (err) {
+        console.error("Load cart error:", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    loadCartAndUser();
+  }, []);
+
+  const updateQuantity = async (id: string, delta: number) => {
+    const targetItem = items.find((i) => i.id === id);
+    if (!targetItem) return;
+
+    const newQty = targetItem.quantity + delta;
+
     setItems((prev) =>
       prev
         .map((item) => {
           if (item.id === id) {
-            const newQty = item.quantity + delta;
             return newQty > 0 ? { ...item, quantity: newQty } : null;
           }
           return item;
         })
         .filter(Boolean) as CartItem[]
     );
+
+    // Sync with Supabase DB if signed in
+    if (supabase && user) {
+      if (newQty > 0) {
+        await supabase
+          .from("carts")
+          .update({ quantity: newQty, updated_at: new Date().toISOString() })
+          .eq("user_id", user.id)
+          .eq("product_slug", targetItem.slug);
+      } else {
+        await supabase
+          .from("carts")
+          .delete()
+          .eq("user_id", user.id)
+          .eq("product_slug", targetItem.slug);
+      }
+    }
   };
 
-  const removeItem = (id: string) => {
+  const removeItem = async (id: string) => {
+    const targetItem = items.find((i) => i.id === id);
     setItems((prev) => prev.filter((item) => item.id !== id));
+
+    if (supabase && user && targetItem) {
+      await supabase
+        .from("carts")
+        .delete()
+        .eq("user_id", user.id)
+        .eq("product_slug", targetItem.slug);
+    }
   };
 
   const subtotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
@@ -71,6 +157,48 @@ export function CartView() {
       setPromoError("Invalid promo code. Try SINGULAR10");
     }
   };
+
+  const handleCheckout = async () => {
+    setIsPlacingOrder(true);
+    try {
+      if (supabase && user) {
+        // Place order in Supabase
+        const { error } = await supabase.from("orders").insert({
+          user_id: user.id,
+          email: user.email,
+          full_name: user.user_metadata?.full_name || user.email,
+          items: items.map((i) => ({
+            slug: i.slug,
+            name: i.name,
+            price: i.priceString || `$${i.price.toFixed(2)}`,
+            image: i.image,
+            quantity: i.quantity,
+          })),
+          total: `$${total.toFixed(2)}`,
+          status: "pending",
+        });
+
+        if (!error) {
+          // Clear cart in DB
+          await supabase.from("carts").delete().eq("user_id", user.id);
+        }
+      }
+      setItems([]);
+      setOrderPlaced(true);
+    } catch (err) {
+      console.error("Checkout error:", err);
+    } finally {
+      setIsPlacingOrder(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="flex min-h-[50vh] items-center justify-center">
+        <div className="h-6 w-6 animate-spin rounded-full border-2 border-clay border-t-transparent" />
+      </div>
+    );
+  }
 
   return (
     <div className="mx-auto max-w-[1400px] px-6 py-12 lg:px-10 lg:py-16">
@@ -97,7 +225,21 @@ export function CartView() {
         </div>
       </div>
 
-      {items.length === 0 ? (
+      {orderPlaced ? (
+        <div className="py-16 text-center space-y-4 max-w-md mx-auto rounded-3xl border border-line bg-cream p-8">
+          <span className="text-4xl">🎉</span>
+          <h2 className="text-2xl font-light text-ink">Order Request Placed!</h2>
+          <p className="text-xs text-muted leading-relaxed">
+            Thank you for your order. We will follow up shortly to confirm details.
+          </p>
+          <a
+            href="/account"
+            className="inline-block rounded-full bg-ink px-8 py-3 text-xs uppercase tracking-widest text-paper hover:bg-clay transition mt-4"
+          >
+            View My Account
+          </a>
+        </div>
+      ) : items.length === 0 ? (
         <div className="py-16 text-center space-y-4">
           <p className="text-lg text-muted">Your bag is currently empty.</p>
           <a
@@ -115,7 +257,11 @@ export function CartView() {
               {items.map((item) => (
                 <div key={item.id} className="py-6 flex gap-6 items-center">
                   <div className="h-24 w-24 shrink-0 overflow-hidden rounded-xl border border-line bg-cream">
-                    <img src={item.image} alt={item.name} className="h-full w-full object-cover" />
+                    {item.image ? (
+                      <img src={item.image} alt={item.name} className="h-full w-full object-cover" />
+                    ) : (
+                      <div className="flex h-full w-full items-center justify-center text-[10px] text-muted">No Image</div>
+                    )}
                   </div>
 
                   <div className="flex-1 min-w-0 space-y-1">
@@ -219,10 +365,11 @@ export function CartView() {
                 </div>
 
                 <button
-                  onClick={() => alert("Proceeding to secure checkout...")}
-                  className="w-full rounded-full bg-ink py-4 text-xs font-medium uppercase tracking-widest text-paper transition hover:bg-clay"
+                  onClick={handleCheckout}
+                  disabled={isPlacingOrder}
+                  className="w-full rounded-full bg-ink py-4 text-xs font-medium uppercase tracking-widest text-paper transition hover:bg-clay disabled:opacity-50"
                 >
-                  Proceed to Checkout
+                  {isPlacingOrder ? "Placing Order..." : "Proceed to Checkout"}
                 </button>
 
                 <p className="text-[10px] text-center text-muted">

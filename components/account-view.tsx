@@ -1,29 +1,148 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { supabase } from "@/lib/supabase";
+import type { User } from "@supabase/supabase-js";
+
+interface Order {
+  id: string;
+  created_at: string;
+  status: string;
+  total: string;
+}
 
 export function AccountView() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
   const [authMode, setAuthMode] = useState<"login" | "register">("login");
   const [userEmail, setUserEmail] = useState("");
   const [userPassword, setUserPassword] = useState("");
   const [userName, setUserName] = useState("");
+  const [authError, setAuthError] = useState("");
+  const [authSuccess, setAuthSuccess] = useState("");
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [ordersLoading, setOrdersLoading] = useState(false);
 
-  const handleAuthSubmit = (e: React.FormEvent) => {
+  useEffect(() => {
+    async function checkUser() {
+      if (!supabase) {
+        setLoading(false);
+        return;
+      }
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        setUser(user);
+        if (user) {
+          fetchOrders(user.id);
+        }
+      } catch (err) {
+        console.error("Auth check failed:", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    checkUser();
+
+    if (supabase) {
+      const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+        const currentUser = session?.user ?? null;
+        setUser(currentUser);
+        if (currentUser) {
+          fetchOrders(currentUser.id);
+        } else {
+          setOrders([]);
+        }
+      });
+      return () => subscription.unsubscribe();
+    }
+  }, []);
+
+  async function fetchOrders(userId: string) {
+    if (!supabase) return;
+    setOrdersLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from("orders")
+        .select("id, created_at, status, total")
+        .eq("user_id", userId)
+        .order("created_at", { ascending: false });
+
+      if (!error && data) {
+        setOrders(data);
+      }
+    } catch (err) {
+      console.error("Fetch orders failed:", err);
+    } finally {
+      setOrdersLoading(false);
+    }
+  }
+
+  const handleAuthSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (userEmail) {
-      setIsLoggedIn(true);
+    setAuthError("");
+    setAuthSuccess("");
+
+    if (!supabase) {
+      setAuthError("Supabase client is not connected.");
+      return;
+    }
+
+    try {
+      if (authMode === "login") {
+        const { error } = await supabase.auth.signInWithPassword({
+          email: userEmail,
+          password: userPassword,
+        });
+        if (error) {
+          setAuthError(error.message);
+        } else {
+          setAuthSuccess("Successfully signed in!");
+        }
+      } else {
+        const { error } = await supabase.auth.signUp({
+          email: userEmail,
+          password: userPassword,
+          options: {
+            data: {
+              full_name: userName,
+            },
+          },
+        });
+        if (error) {
+          setAuthError(error.message);
+        } else {
+          setAuthSuccess("Account created successfully! Check your email to confirm.");
+        }
+      }
+    } catch (err: any) {
+      setAuthError(err.message || "An unexpected error occurred.");
     }
   };
 
+  const handleSignOut = async () => {
+    if (supabase) {
+      await supabase.auth.signOut();
+    }
+    setUser(null);
+  };
+
+  if (loading) {
+    return (
+      <div className="flex min-h-[50vh] items-center justify-center">
+        <div className="h-6 w-6 animate-spin rounded-full border-2 border-clay border-t-transparent" />
+      </div>
+    );
+  }
+
   return (
     <div className="mx-auto max-w-[1200px] px-6 py-16 lg:px-10">
-      {!isLoggedIn ? (
+      {!user ? (
         /* Login / Register Form */
         <div className="mx-auto max-w-md rounded-3xl border border-line bg-cream p-8 sm:p-10 shadow-sm">
           <div className="flex justify-center border-b border-line pb-4 mb-8 text-sm uppercase tracking-widest gap-8">
             <button
-              onClick={() => setAuthMode("login")}
+              onClick={() => { setAuthMode("login"); setAuthError(""); setAuthSuccess(""); }}
               className={`pb-2 transition border-b-2 ${
                 authMode === "login"
                   ? "border-ink font-semibold text-ink"
@@ -33,7 +152,7 @@ export function AccountView() {
               Sign In
             </button>
             <button
-              onClick={() => setAuthMode("register")}
+              onClick={() => { setAuthMode("register"); setAuthError(""); setAuthSuccess(""); }}
               className={`pb-2 transition border-b-2 ${
                 authMode === "register"
                   ? "border-ink font-semibold text-ink"
@@ -52,6 +171,18 @@ export function AccountView() {
               ? "Sign in to access your orders, wishlist, and rewards."
               : "Create an account for faster checkout and exclusive offers."}
           </p>
+
+          {authError && (
+            <div className="mb-4 rounded-xl bg-red-50 p-3 text-center text-xs text-red-600 border border-red-200">
+              {authError}
+            </div>
+          )}
+
+          {authSuccess && (
+            <div className="mb-4 rounded-xl bg-green-50 p-3 text-center text-xs text-green-700 border border-green-200">
+              {authSuccess}
+            </div>
+          )}
 
           <form onSubmit={handleAuthSubmit} className="space-y-4">
             {authMode === "register" && (
@@ -98,16 +229,6 @@ export function AccountView() {
               />
             </div>
 
-            {authMode === "login" && (
-              <div className="flex justify-between items-center text-xs text-muted pt-1">
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input type="checkbox" className="rounded border-line" />
-                  <span>Remember me</span>
-                </label>
-                <a href="#" className="underline hover:text-ink">Forgot password?</a>
-              </div>
-            )}
-
             <button
               type="submit"
               className="w-full rounded-full bg-ink py-3.5 text-xs font-medium uppercase tracking-widest text-paper transition hover:bg-clay mt-4"
@@ -122,10 +243,12 @@ export function AccountView() {
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between border-b border-line pb-6 gap-4">
             <div>
               <h1 className="text-3xl font-light text-ink">My Account</h1>
-              <p className="text-xs text-muted mt-1">Hello, <span className="font-semibold text-ink">{userName || userEmail}</span></p>
+              <p className="text-xs text-muted mt-1">
+                Signed in as <span className="font-semibold text-ink">{user.email}</span>
+              </p>
             </div>
             <button
-              onClick={() => setIsLoggedIn(false)}
+              onClick={handleSignOut}
               className="text-xs tracking-wider uppercase text-muted hover:text-ink underline self-start sm:self-auto"
             >
               Sign Out
@@ -140,9 +263,6 @@ export function AccountView() {
                   📦 Order History
                 </a>
                 <a href="#" className="block px-4 py-2.5 rounded-xl text-muted hover:text-ink hover:bg-paper/50">
-                  📍 Addresses
-                </a>
-                <a href="#" className="block px-4 py-2.5 rounded-xl text-muted hover:text-ink hover:bg-paper/50">
                   ⚙️ Account Details
                 </a>
               </div>
@@ -152,40 +272,50 @@ export function AccountView() {
             <div className="lg:col-span-9 space-y-6">
               <div className="rounded-2xl border border-line bg-white p-6 sm:p-8">
                 <h2 className="text-lg font-semibold text-ink mb-4">Recent Orders</h2>
-                <div className="overflow-x-auto">
-                  <table className="w-full text-xs text-left">
-                    <thead className="border-b border-line text-muted uppercase tracking-wider">
-                      <tr>
-                        <th className="py-3 px-2">Order #</th>
-                        <th className="py-3 px-2">Date</th>
-                        <th className="py-3 px-2">Status</th>
-                        <th className="py-3 px-2">Total</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-line/60">
-                      <tr>
-                        <td className="py-4 px-2 font-mono font-medium text-ink">#SC-9042</td>
-                        <td className="py-4 px-2 text-muted">July 18, 2026</td>
-                        <td className="py-4 px-2">
-                          <span className="inline-flex items-center gap-1.5 rounded-full bg-sage/20 px-2.5 py-0.5 text-[10px] font-semibold text-moss">
-                            Delivered
-                          </span>
-                        </td>
-                        <td className="py-4 px-2 font-medium text-ink">$89.00</td>
-                      </tr>
-                      <tr>
-                        <td className="py-4 px-2 font-mono font-medium text-ink">#SC-8711</td>
-                        <td className="py-4 px-2 text-muted">June 24, 2026</td>
-                        <td className="py-4 px-2">
-                          <span className="inline-flex items-center gap-1.5 rounded-full bg-sage/20 px-2.5 py-0.5 text-[10px] font-semibold text-moss">
-                            Delivered
-                          </span>
-                        </td>
-                        <td className="py-4 px-2 font-medium text-ink">$42.00</td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
+                {ordersLoading ? (
+                  <p className="text-xs text-muted">Loading orders...</p>
+                ) : orders.length === 0 ? (
+                  <div className="py-8 text-center text-xs text-muted space-y-3">
+                    <p>No orders placed yet.</p>
+                    <a
+                      href="/shop"
+                      className="inline-block rounded-full bg-ink px-6 py-2.5 text-xs text-paper uppercase tracking-wider hover:bg-clay transition"
+                    >
+                      Start Shopping
+                    </a>
+                  </div>
+                ) : (
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-xs text-left">
+                      <thead className="border-b border-line text-muted uppercase tracking-wider">
+                        <tr>
+                          <th className="py-3 px-2">Order #</th>
+                          <th className="py-3 px-2">Date</th>
+                          <th className="py-3 px-2">Status</th>
+                          <th className="py-3 px-2">Total</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-line/60">
+                        {orders.map((order) => (
+                          <tr key={order.id}>
+                            <td className="py-4 px-2 font-mono font-medium text-ink">
+                              #{order.id.slice(0, 8)}
+                            </td>
+                            <td className="py-4 px-2 text-muted">
+                              {new Date(order.created_at).toLocaleDateString()}
+                            </td>
+                            <td className="py-4 px-2">
+                              <span className="inline-flex items-center gap-1.5 rounded-full bg-sage/20 px-2.5 py-0.5 text-[10px] font-semibold text-moss uppercase">
+                                {order.status}
+                              </span>
+                            </td>
+                            <td className="py-4 px-2 font-medium text-ink">{order.total || "$0.00"}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
               </div>
             </div>
           </div>

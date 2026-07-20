@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Stars } from "@/components/ui";
+import { supabase } from "@/lib/supabase";
 
 interface ReviewItem {
   id: string;
@@ -25,6 +26,7 @@ interface ProductDetailViewProps {
 }
 
 export function ProductDetailView({
+  slug,
   name,
   price,
   category,
@@ -45,9 +47,29 @@ export function ProductDetailView({
     ? reviews.reduce((acc, r) => acc + r.rating, 0) / reviews.length
     : 5.0;
 
-  const handleAddToCart = () => {
+  const handleAddToCart = async () => {
     setAddedToCart(true);
     setTimeout(() => setAddedToCart(false), 3000);
+
+    if (supabase) {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          await supabase.from("carts").upsert({
+            user_id: user.id,
+            product_slug: slug || "product",
+            material: "",
+            name: name,
+            image: mainImage || "",
+            price: price,
+            quantity: quantity,
+            updated_at: new Date().toISOString(),
+          });
+        }
+      } catch (err) {
+        console.error("Cart sync error:", err);
+      }
+    }
   };
 
   return (

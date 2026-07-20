@@ -3,8 +3,9 @@ import { Stars } from "@/components/ui";
 import type { Product } from "@/lib/content";
 
 export function ProductCard({ product }: { product: Product }) {
+  const productHref = `/products/${product.id || product.slug}`;
   return (
-    <a href="#" className="group flex flex-col gap-3 text-center">
+    <a href={productHref} className="group flex flex-col gap-3 text-center">
       <Media
         tone={product.tone}
         src={product.image}

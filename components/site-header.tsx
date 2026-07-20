@@ -66,18 +66,18 @@ export async function SiteHeader() {
           </form>
 
           <div className="ml-auto flex items-center gap-5 md:ml-4">
-            <button aria-label="Account" className="md:hidden">
+            <button aria-label="Search" className="md:hidden">
               <SearchIcon />
             </button>
-            <button aria-label="Account">
+            <a href="/account" aria-label="Account" className="hover:text-clay transition">
               <UserIcon />
-            </button>
-            <button aria-label="Cart" className="relative">
+            </a>
+            <a href="/cart" aria-label="Cart" className="relative hover:text-clay transition">
               <BagIcon />
               <span className="absolute -right-1.5 -top-1 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-clay text-[8px] text-white">
                 2
               </span>
-            </button>
+            </a>
           </div>
         </div>
       </div>

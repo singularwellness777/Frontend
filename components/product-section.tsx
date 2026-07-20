@@ -16,7 +16,7 @@ export function ProductSection({
       {title ? <SectionHeading className="mb-12">{title}</SectionHeading> : null}
       <ProductGrid products={products} />
       <div className="mt-12 flex justify-center">
-        <Button variant="outline">{cta}</Button>
+        <Button href="/shop" variant="outline">{cta}</Button>
       </div>
     </section>
   );

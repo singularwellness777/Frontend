@@ -167,6 +167,15 @@ export function getProducts(): Promise<Product[]> {
   );
 }
 
+export async function getProductBySlug(slug: string): Promise<Product | null> {
+  const products = await query(
+    "products",
+    (q) => q.select("*").eq("slug", slug),
+    mapProduct,
+  );
+  return products[0] ?? null;
+}
+
 export function getHomeMedia(): Promise<HomeMedia[]> {
   return query(
     "home_media",

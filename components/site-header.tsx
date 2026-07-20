@@ -24,29 +24,55 @@ export async function SiteHeader() {
 
           <div className="flex items-center gap-8">
             <nav className="hidden items-center gap-7 lg:flex">
-              {navItems.map((item) => {
-                const href = "href" in item ? item.href : "#";
+              {navItems.map((item, idx) => {
+                const href =
+                  "href" in item && item.href
+                    ? item.href
+                    : "linkUrl" in item && item.linkUrl
+                    ? item.linkUrl
+                    : "/shop";
                 const subcategories =
                   "subcategories" in item ? item.subcategories : undefined;
                 const hasSubcategories =
                   Array.isArray(subcategories) && subcategories.length > 0;
 
+                const isRightAligned = idx >= navItems.length - 2;
+
                 return (
-                  <div key={item.label} className="group relative">
+                  <div key={item.label} className="group relative py-2">
                     <a
                       href={href}
-                      className="eyebrow text-ink/80 transition-colors hover:text-ink"
+                      className="eyebrow text-ink/80 transition-colors hover:text-ink flex items-center gap-1"
                     >
                       {item.label}
+                      {hasSubcategories && (
+                        <svg
+                          className="h-3 w-3 opacity-60 transition-transform duration-200 group-hover:rotate-180"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth="2"
+                            d="M19 9l-7 7-7-7"
+                          />
+                        </svg>
+                      )}
                     </a>
                     {hasSubcategories ? (
-                      <div className="pointer-events-none absolute left-0 top-full z-20 mt-3 hidden min-w-[220px] rounded-3xl border border-line bg-paper p-4 opacity-0 transition duration-150 group-hover:pointer-events-auto group-hover:block group-hover:opacity-100">
-                        <div className="space-y-2">
+                      <div
+                        className={`pointer-events-none absolute top-full z-50 pt-2 hidden min-w-[200px] opacity-0 transition-all duration-200 group-hover:pointer-events-auto group-hover:block group-hover:opacity-100 ${
+                          isRightAligned ? "right-0" : "left-0"
+                        }`}
+                      >
+                        <div className="rounded-2xl border border-line bg-paper p-3 shadow-xl space-y-1">
                           {subcategories.map((subcategory) => (
                             <a
                               key={subcategory.label}
-                              href={subcategory.linkUrl}
-                              className="block rounded-full px-3 py-2 text-sm text-ink/80 transition-colors hover:bg-ink/5 hover:text-ink"
+                              href={subcategory.linkUrl || "#"}
+                              className="block rounded-xl px-3 py-2 text-xs font-medium text-ink/80 transition-colors hover:bg-cream hover:text-ink"
                             >
                               {subcategory.label}
                             </a>

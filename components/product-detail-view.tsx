@@ -70,6 +70,8 @@ export function ProductDetailView({
         console.error("Cart sync error:", err);
       }
     }
+
+    window.dispatchEvent(new CustomEvent("cart-updated"));
   };
 
   return (

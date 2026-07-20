@@ -80,7 +80,15 @@ export function CartView() {
               };
             });
             setItems(mappedItems);
+            const totalQty = mappedItems.reduce((acc, item) => acc + item.quantity, 0);
+            window.dispatchEvent(new CustomEvent("cart-updated", { detail: { count: totalQty } }));
+          } else {
+            const totalQty = INITIAL_CART_ITEMS.reduce((acc, item) => acc + item.quantity, 0);
+            window.dispatchEvent(new CustomEvent("cart-updated", { detail: { count: totalQty } }));
           }
+        } else {
+          const totalQty = INITIAL_CART_ITEMS.reduce((acc, item) => acc + item.quantity, 0);
+          window.dispatchEvent(new CustomEvent("cart-updated", { detail: { count: totalQty } }));
         }
       } catch (err) {
         console.error("Load cart error:", err);
@@ -98,16 +106,19 @@ export function CartView() {
 
     const newQty = targetItem.quantity + delta;
 
-    setItems((prev) =>
-      prev
-        .map((item) => {
-          if (item.id === id) {
-            return newQty > 0 ? { ...item, quantity: newQty } : null;
-          }
-          return item;
-        })
-        .filter(Boolean) as CartItem[]
-    );
+    const updatedItems = items
+      .map((item) => {
+        if (item.id === id) {
+          const newQty = item.quantity + delta;
+          return newQty > 0 ? { ...item, quantity: newQty } : null;
+        }
+        return item;
+      })
+      .filter(Boolean) as CartItem[];
+
+    setItems(updatedItems);
+    const newTotal = updatedItems.reduce((acc, i) => acc + i.quantity, 0);
+    window.dispatchEvent(new CustomEvent("cart-updated", { detail: { count: newTotal } }));
 
     // Sync with Supabase DB if signed in
     if (supabase && user) {
@@ -129,7 +140,10 @@ export function CartView() {
 
   const removeItem = async (id: string) => {
     const targetItem = items.find((i) => i.id === id);
-    setItems((prev) => prev.filter((item) => item.id !== id));
+    const updated = items.filter((item) => item.id !== id);
+    setItems(updated);
+    const newTotal = updated.reduce((acc, i) => acc + i.quantity, 0);
+    window.dispatchEvent(new CustomEvent("cart-updated", { detail: { count: newTotal } }));
 
     if (supabase && user && targetItem) {
       await supabase
@@ -185,6 +199,7 @@ export function CartView() {
       }
       setItems([]);
       setOrderPlaced(true);
+      window.dispatchEvent(new CustomEvent("cart-updated", { detail: { count: 0 } }));
     } catch (err) {
       console.error("Checkout error:", err);
     } finally {

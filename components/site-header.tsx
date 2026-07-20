@@ -1,6 +1,7 @@
 import { ANNOUNCEMENT, BRAND, NAV } from "@/lib/content";
 import { getNavCategories } from "@/lib/data";
 import type { NavCategory } from "@/lib/data";
+import { CartBadge } from "@/components/cart-badge";
 
 export async function SiteHeader() {
   const adminCategories = await getNavCategories();
@@ -88,9 +89,7 @@ export async function SiteHeader() {
               className="relative hover:text-clay transition"
             >
               <BagIcon />
-              <span className="absolute -right-1.5 -top-1 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-clay text-[8px] text-white">
-                2
-              </span>
+              <CartBadge />
             </a>
           </div>
         </div>

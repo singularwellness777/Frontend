@@ -1,5 +1,7 @@
+"use client";
+
 import Image from "next/image";
-import type { CSSProperties, ReactNode } from "react";
+import { useState, type CSSProperties, type ReactNode } from "react";
 
 export type Tone =
   | "cream"
@@ -38,14 +40,17 @@ export function Media({
   className?: string;
   /** Darken the image so overlaid text stays legible. */
   overlay?: boolean;
-  /** Catalogue image URL. Falls back to the tone gradient when empty. */
+  /** Catalogue image URL. Falls back to the tone gradient when empty or error. */
   src?: string;
   children?: ReactNode;
 }) {
+  const [imageError, setImageError] = useState(false);
   const [from, to] = TONES[tone];
   const style: CSSProperties = {
     backgroundImage: `radial-gradient(120% 90% at 25% 15%, ${from} 0%, ${to} 70%, ${to} 100%)`,
   };
+
+  const showImage = src && !imageError;
 
   return (
     <div
@@ -54,11 +59,13 @@ export function Media({
       style={style}
       className={`relative overflow-hidden ${className}`}
     >
-      {src ? (
+      {showImage ? (
         <Image
           src={src}
           alt={alt ?? ""}
           fill
+          unoptimized
+          onError={() => setImageError(true)}
           sizes="(min-width: 768px) 25vw, 50vw"
           className="object-cover"
         />

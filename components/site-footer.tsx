@@ -13,7 +13,7 @@ export function SiteFooter() {
       <div className="mx-auto grid max-w-[1400px] gap-12 px-6 py-16 lg:grid-cols-[1.2fr_2fr_1.2fr] lg:px-10">
         <div>
           <a href="/" className="inline-block">
-            <img src="/Singular logo.svg" alt="Singular Cares" className="h-10 w-auto" />
+            <img src="/Singular logo.svg" alt="Singular Cares" className="h-12 md:h-14 w-auto object-contain" />
           </a>
         </div>
 

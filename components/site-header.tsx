@@ -18,14 +18,20 @@ export async function SiteHeader() {
       <div className="border-b border-line bg-paper/95 backdrop-blur">
         <div className="mx-auto flex max-w-[1400px] items-center gap-6 px-6 py-4 lg:px-10">
           <a href="/" className="shrink-0 flex items-center">
-            <img src="/Singular logo.svg" alt="Singular Cares" className="h-10 w-auto" />
+            <img
+              src="/Singular logo.svg"
+              alt="Singular Cares"
+              className="h-12 md:h-14 w-auto object-contain"
+            />
           </a>
 
           <nav className="hidden items-center gap-7 lg:flex">
             {navItems.map((item) => {
               const href = "href" in item ? item.href : "#";
-              const subcategories = "subcategories" in item ? item.subcategories : undefined;
-              const hasSubcategories = Array.isArray(subcategories) && subcategories.length > 0;
+              const subcategories =
+                "subcategories" in item ? item.subcategories : undefined;
+              const hasSubcategories =
+                Array.isArray(subcategories) && subcategories.length > 0;
 
               return (
                 <div key={item.label} className="group relative">
@@ -69,10 +75,18 @@ export async function SiteHeader() {
             <button aria-label="Search" className="md:hidden">
               <SearchIcon />
             </button>
-            <a href="/account" aria-label="Account" className="hover:text-clay transition">
+            <a
+              href="/account"
+              aria-label="Account"
+              className="hover:text-clay transition"
+            >
               <UserIcon />
             </a>
-            <a href="/cart" aria-label="Cart" className="relative hover:text-clay transition">
+            <a
+              href="/cart"
+              aria-label="Cart"
+              className="relative hover:text-clay transition"
+            >
               <BagIcon />
               <span className="absolute -right-1.5 -top-1 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-clay text-[8px] text-white">
                 2
@@ -87,7 +101,13 @@ export async function SiteHeader() {
 
 function SearchIcon() {
   return (
-    <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.4">
+    <svg
+      viewBox="0 0 24 24"
+      className="h-4 w-4"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.4"
+    >
       <circle cx="11" cy="11" r="6.5" />
       <path d="M16 16l4.5 4.5" strokeLinecap="round" />
     </svg>
@@ -96,7 +116,13 @@ function SearchIcon() {
 
 function UserIcon() {
   return (
-    <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.4">
+    <svg
+      viewBox="0 0 24 24"
+      className="h-4 w-4"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.4"
+    >
       <circle cx="12" cy="8" r="3.5" />
       <path d="M5 20c1.2-3.6 4-5.5 7-5.5s5.8 1.9 7 5.5" strokeLinecap="round" />
     </svg>
@@ -105,7 +131,13 @@ function UserIcon() {
 
 function BagIcon() {
   return (
-    <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.4">
+    <svg
+      viewBox="0 0 24 24"
+      className="h-4 w-4"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.4"
+    >
       <path d="M5.5 7.5h13l-1 12.5h-11z" strokeLinejoin="round" />
       <path d="M9 9V6.5a3 3 0 016 0V9" strokeLinecap="round" />
     </svg>

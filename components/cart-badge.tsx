@@ -2,12 +2,19 @@
 
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
+import { getLocalCart } from "@/lib/cart-store";
 
 export function CartBadge() {
-  const [count, setCount] = useState<number>(2);
+  const [count, setCount] = useState<number>(0);
 
   useEffect(() => {
     async function loadCartCount() {
+      // 1. Check local cart count first
+      const localItems = getLocalCart();
+      if (localItems.length > 0) {
+        setCount(localItems.reduce((acc, i) => acc + i.quantity, 0));
+      }
+
       if (!supabase) return;
       try {
         const { data: { user } } = await supabase.auth.getUser();
@@ -17,7 +24,7 @@ export function CartBadge() {
             .select("quantity")
             .eq("user_id", user.id);
 
-          if (dbCarts) {
+          if (dbCarts && dbCarts.length > 0) {
             const totalQty = dbCarts.reduce((acc, row) => acc + (row.quantity || 1), 0);
             setCount(totalQty);
           }
@@ -34,7 +41,8 @@ export function CartBadge() {
       if (typeof e.detail?.count === "number") {
         setCount(e.detail.count);
       } else {
-        loadCartCount();
+        const localItems = getLocalCart();
+        setCount(localItems.reduce((acc, i) => acc + i.quantity, 0));
       }
     };
 

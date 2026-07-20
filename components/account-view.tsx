@@ -30,13 +30,14 @@ export function AccountView() {
         return;
       }
       try {
-        const { data: { user } } = await supabase.auth.getUser();
-        setUser(user);
-        if (user) {
-          fetchOrders(user.id);
+        const { data: { session } } = await supabase.auth.getSession();
+        const currentUser = session?.user ?? null;
+        setUser(currentUser);
+        if (currentUser) {
+          fetchOrders(currentUser.id);
         }
       } catch (err) {
-        console.error("Auth check failed:", err);
+        // Guest user session check
       } finally {
         setLoading(false);
       }

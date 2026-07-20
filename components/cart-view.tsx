@@ -2,18 +2,15 @@
 
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
+import {
+  getLocalCart,
+  saveLocalCart,
+  updateLocalQuantity,
+  removeLocalItem,
+  clearLocalCart,
+  type CartItem,
+} from "@/lib/cart-store";
 import type { User } from "@supabase/supabase-js";
-
-interface CartItem {
-  id: string;
-  slug: string;
-  name: string;
-  price: number;
-  priceString: string;
-  image: string;
-  quantity: number;
-  category: string;
-}
 
 const INITIAL_CART_ITEMS: CartItem[] = [
   {
@@ -40,7 +37,7 @@ const INITIAL_CART_ITEMS: CartItem[] = [
 
 export function CartView() {
   const [user, setUser] = useState<User | null>(null);
-  const [items, setItems] = useState<CartItem[]>(INITIAL_CART_ITEMS);
+  const [items, setItems] = useState<CartItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [promoCode, setPromoCode] = useState("");
   const [appliedDiscount, setAppliedDiscount] = useState(0);
@@ -50,22 +47,31 @@ export function CartView() {
 
   useEffect(() => {
     async function loadCartAndUser() {
+      // 1. First get items from local cart store
+      let currentItems = getLocalCart();
+      if (currentItems.length === 0) {
+        currentItems = INITIAL_CART_ITEMS;
+        saveLocalCart(currentItems);
+      }
+      setItems(currentItems);
+
       if (!supabase) {
         setLoading(false);
         return;
       }
+
       try {
         const { data: { user } } = await supabase.auth.getUser();
         setUser(user);
 
         if (user) {
           // Fetch cart from Supabase
-          const { data: dbCarts, error } = await supabase
+          const { data: dbCarts } = await supabase
             .from("carts")
             .select("*")
             .eq("user_id", user.id);
 
-          if (!error && dbCarts && dbCarts.length > 0) {
+          if (dbCarts && dbCarts.length > 0) {
             const mappedItems: CartItem[] = dbCarts.map((row) => {
               const numPrice = parseFloat((row.price || "").replace(/[^0-9.]/g, "")) || 0;
               return {
@@ -80,15 +86,8 @@ export function CartView() {
               };
             });
             setItems(mappedItems);
-            const totalQty = mappedItems.reduce((acc, item) => acc + item.quantity, 0);
-            window.dispatchEvent(new CustomEvent("cart-updated", { detail: { count: totalQty } }));
-          } else {
-            const totalQty = INITIAL_CART_ITEMS.reduce((acc, item) => acc + item.quantity, 0);
-            window.dispatchEvent(new CustomEvent("cart-updated", { detail: { count: totalQty } }));
+            saveLocalCart(mappedItems);
           }
-        } else {
-          const totalQty = INITIAL_CART_ITEMS.reduce((acc, item) => acc + item.quantity, 0);
-          window.dispatchEvent(new CustomEvent("cart-updated", { detail: { count: totalQty } }));
         }
       } catch (err) {
         console.error("Load cart error:", err);
@@ -101,27 +100,12 @@ export function CartView() {
   }, []);
 
   const updateQuantity = async (id: string, delta: number) => {
-    const targetItem = items.find((i) => i.id === id);
-    if (!targetItem) return;
+    const targetItem = items.find((i) => i.id === id || i.slug === id);
+    const updated = updateLocalQuantity(id, delta);
+    setItems(updated);
 
-    const newQty = targetItem.quantity + delta;
-
-    const updatedItems = items
-      .map((item) => {
-        if (item.id === id) {
-          const newQty = item.quantity + delta;
-          return newQty > 0 ? { ...item, quantity: newQty } : null;
-        }
-        return item;
-      })
-      .filter(Boolean) as CartItem[];
-
-    setItems(updatedItems);
-    const newTotal = updatedItems.reduce((acc, i) => acc + i.quantity, 0);
-    window.dispatchEvent(new CustomEvent("cart-updated", { detail: { count: newTotal } }));
-
-    // Sync with Supabase DB if signed in
-    if (supabase && user) {
+    if (supabase && user && targetItem) {
+      const newQty = targetItem.quantity + delta;
       if (newQty > 0) {
         await supabase
           .from("carts")
@@ -139,11 +123,9 @@ export function CartView() {
   };
 
   const removeItem = async (id: string) => {
-    const targetItem = items.find((i) => i.id === id);
-    const updated = items.filter((item) => item.id !== id);
+    const targetItem = items.find((i) => i.id === id || i.slug === id);
+    const updated = removeLocalItem(id);
     setItems(updated);
-    const newTotal = updated.reduce((acc, i) => acc + i.quantity, 0);
-    window.dispatchEvent(new CustomEvent("cart-updated", { detail: { count: newTotal } }));
 
     if (supabase && user && targetItem) {
       await supabase
@@ -177,7 +159,7 @@ export function CartView() {
     try {
       if (supabase && user) {
         // Place order in Supabase
-        const { error } = await supabase.from("orders").insert({
+        await supabase.from("orders").insert({
           user_id: user.id,
           email: user.email,
           full_name: user.user_metadata?.full_name || user.email,
@@ -192,14 +174,12 @@ export function CartView() {
           status: "pending",
         });
 
-        if (!error) {
-          // Clear cart in DB
-          await supabase.from("carts").delete().eq("user_id", user.id);
-        }
+        await supabase.from("carts").delete().eq("user_id", user.id);
       }
+
+      clearLocalCart();
       setItems([]);
       setOrderPlaced(true);
-      window.dispatchEvent(new CustomEvent("cart-updated", { detail: { count: 0 } }));
     } catch (err) {
       console.error("Checkout error:", err);
     } finally {

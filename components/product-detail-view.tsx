@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Stars } from "@/components/ui";
 import { supabase } from "@/lib/supabase";
+import { addToCart } from "@/lib/cart-store";
 
 interface ReviewItem {
   id: string;
@@ -51,27 +52,14 @@ export function ProductDetailView({
     setAddedToCart(true);
     setTimeout(() => setAddedToCart(false), 3000);
 
-    if (supabase) {
-      try {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (user) {
-          await supabase.from("carts").upsert({
-            user_id: user.id,
-            product_slug: slug || "product",
-            material: "",
-            name: name,
-            image: mainImage || "",
-            price: price,
-            quantity: quantity,
-            updated_at: new Date().toISOString(),
-          });
-        }
-      } catch (err) {
-        console.error("Cart sync error:", err);
-      }
-    }
-
-    window.dispatchEvent(new CustomEvent("cart-updated"));
+    await addToCart({
+      slug: slug || "product",
+      name: name,
+      price: price,
+      image: mainImage || "",
+      quantity: quantity,
+      category: category,
+    });
   };
 
   return (

@@ -12,12 +12,8 @@ export async function SiteHeader() {
 
   return (
     <header className="sticky top-0 z-50">
-      <div className="bg-ink py-2 text-center">
-        <p className="eyebrow text-paper/90">{ANNOUNCEMENT}</p>
-      </div>
-
       <div className="border-b border-line bg-paper/95 backdrop-blur">
-        <div className="mx-auto flex max-w-[1400px] items-center gap-6 px-6 py-4 lg:px-10">
+        <div className="mx-auto flex max-w-[1400px] items-center justify-between gap-6 px-6 py-4 lg:px-10">
           <a href="/" className="shrink-0 flex items-center">
             <img
               src="/Singular logo.svg"
@@ -26,71 +22,60 @@ export async function SiteHeader() {
             />
           </a>
 
-          <nav className="hidden items-center gap-7 lg:flex">
-            {navItems.map((item) => {
-              const href = "href" in item ? item.href : "#";
-              const subcategories =
-                "subcategories" in item ? item.subcategories : undefined;
-              const hasSubcategories =
-                Array.isArray(subcategories) && subcategories.length > 0;
+          <div className="flex items-center gap-8">
+            <nav className="hidden items-center gap-7 lg:flex">
+              {navItems.map((item) => {
+                const href = "href" in item ? item.href : "#";
+                const subcategories =
+                  "subcategories" in item ? item.subcategories : undefined;
+                const hasSubcategories =
+                  Array.isArray(subcategories) && subcategories.length > 0;
 
-              return (
-                <div key={item.label} className="group relative">
-                  <a
-                    href={href}
-                    className="eyebrow text-ink/80 transition-colors hover:text-ink"
-                  >
-                    {item.label}
-                  </a>
-                  {hasSubcategories ? (
-                    <div className="pointer-events-none absolute left-0 top-full z-20 mt-3 hidden min-w-[220px] rounded-3xl border border-line bg-paper p-4 opacity-0 transition duration-150 group-hover:pointer-events-auto group-hover:block group-hover:opacity-100">
-                      <div className="space-y-2">
-                        {subcategories.map((subcategory) => (
-                          <a
-                            key={subcategory.label}
-                            href={subcategory.linkUrl}
-                            className="block rounded-full px-3 py-2 text-sm text-ink/80 transition-colors hover:bg-ink/5 hover:text-ink"
-                          >
-                            {subcategory.label}
-                          </a>
-                        ))}
+                return (
+                  <div key={item.label} className="group relative">
+                    <a
+                      href={href}
+                      className="eyebrow text-ink/80 transition-colors hover:text-ink"
+                    >
+                      {item.label}
+                    </a>
+                    {hasSubcategories ? (
+                      <div className="pointer-events-none absolute left-0 top-full z-20 mt-3 hidden min-w-[220px] rounded-3xl border border-line bg-paper p-4 opacity-0 transition duration-150 group-hover:pointer-events-auto group-hover:block group-hover:opacity-100">
+                        <div className="space-y-2">
+                          {subcategories.map((subcategory) => (
+                            <a
+                              key={subcategory.label}
+                              href={subcategory.linkUrl}
+                              className="block rounded-full px-3 py-2 text-sm text-ink/80 transition-colors hover:bg-ink/5 hover:text-ink"
+                            >
+                              {subcategory.label}
+                            </a>
+                          ))}
+                        </div>
                       </div>
-                    </div>
-                  ) : null}
-                </div>
-              );
-            })}
-          </nav>
+                    ) : null}
+                  </div>
+                );
+              })}
+            </nav>
 
-          <form className="ml-auto hidden max-w-md flex-1 items-center gap-2 border-b border-line pb-1 md:flex">
-            <SearchIcon />
-            <input
-              type="search"
-              placeholder="Search"
-              aria-label="Search products"
-              className="w-full bg-transparent text-xs tracking-wide outline-none placeholder:text-muted"
-            />
-          </form>
-
-          <div className="ml-auto flex items-center gap-5 md:ml-4">
-            <button aria-label="Search" className="md:hidden">
-              <SearchIcon />
-            </button>
-            <a
-              href="/account"
-              aria-label="Account"
-              className="hover:text-clay transition"
-            >
-              <UserIcon />
-            </a>
-            <a
-              href="/cart"
-              aria-label="Cart"
-              className="relative hover:text-clay transition"
-            >
-              <BagIcon />
-              <CartBadge />
-            </a>
+            <div className="flex items-center gap-5">
+              <a
+                href="/account"
+                aria-label="Account"
+                className="hover:text-clay transition"
+              >
+                <UserIcon />
+              </a>
+              <a
+                href="/cart"
+                aria-label="Cart"
+                className="relative hover:text-clay transition"
+              >
+                <BagIcon />
+                <CartBadge />
+              </a>
+            </div>
           </div>
         </div>
       </div>

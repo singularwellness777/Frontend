@@ -51,6 +51,7 @@ function toCardProduct(
   const rating = ratings.get(product.slug);
   return {
     id: product.slug,
+    slug: product.slug,
     name: product.name,
     price: product.price,
     rating: rating?.average ?? 0,

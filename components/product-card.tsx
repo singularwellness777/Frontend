@@ -3,7 +3,7 @@ import { Stars } from "@/components/ui";
 import type { Product } from "@/lib/content";
 
 export function ProductCard({ product }: { product: Product }) {
-  const productHref = `/products/${product.id || product.slug}`;
+  const productHref = `/products/${product.slug || product.id}`;
   return (
     <a href={productHref} className="group flex flex-col gap-3 text-center">
       <Media

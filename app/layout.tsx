@@ -4,6 +4,7 @@ import { cookies } from "next/headers";
 import "./globals.css";
 import { getSiteSettings } from "@/lib/data";
 import { ComingSoon } from "@/components/coming-soon";
+import { LiveTracker } from "@/components/live-tracker";
 
 const jost = Jost({
   variable: "--font-jost",
@@ -37,6 +38,7 @@ export default async function RootLayout({
   return (
     <html lang="en" className={`${jost.variable} h-full antialiased`}>
       <body className="min-h-full">
+        <LiveTracker />
         {settings.comingSoon && isPreview && (
           <div className="bg-amber-600 text-white text-center py-2 px-4 text-xs tracking-wider flex items-center justify-center gap-4">
             <span>PREVIEW MODE — Storefront is currently locked with Coming Soon mode in Admin.</span>

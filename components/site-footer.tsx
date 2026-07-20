@@ -12,7 +12,9 @@ export function SiteFooter() {
     <footer className="bg-cream">
       <div className="mx-auto grid max-w-[1400px] gap-12 px-6 py-16 lg:grid-cols-[1.2fr_2fr_1.2fr] lg:px-10">
         <div>
-          <p className="text-2xl lowercase tracking-tight">{BRAND}</p>
+          <a href="/" className="inline-block">
+            <img src="/Singular logo.svg" alt="Singular Cares" className="h-10 w-auto" />
+          </a>
         </div>
 
         <div className="grid grid-cols-2 gap-8 md:grid-cols-4">

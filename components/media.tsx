@@ -1,7 +1,14 @@
 import Image from "next/image";
 import type { CSSProperties, ReactNode } from "react";
 
-export type Tone = "cream" | "sand" | "sage" | "clay" | "rose" | "moss" | "stone";
+export type Tone =
+  | "cream"
+  | "sand"
+  | "sage"
+  | "clay"
+  | "rose"
+  | "moss"
+  | "stone";
 
 const TONES: Record<Tone, [string, string]> = {
   cream: ["#f6f1ea", "#e7dccd"],

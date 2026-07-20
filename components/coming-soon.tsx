@@ -29,8 +29,8 @@ export function ComingSoon({ heading, message }: ComingSoonProps) {
   return (
     <div className="flex min-h-screen flex-col bg-paper text-ink">
       {/* Header */}
-      <header className="border-b border-line py-6 text-center">
-        <span className="text-2xl lowercase tracking-tight font-light">{BRAND}</span>
+      <header className="border-b border-line py-6 flex justify-center items-center">
+        <img src="/Singular logo.svg" alt="Singular Cares" className="h-12 w-auto" />
       </header>
 
       {/* Main Content */}

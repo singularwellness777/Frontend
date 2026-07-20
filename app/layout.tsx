@@ -12,7 +12,7 @@ const jost = Jost({
 });
 
 export const metadata: Metadata = {
-  title: "mushie — Modern essentials for little ones",
+  title: "Singular Cares — Modern essentials for little ones",
   description:
     "Thoughtfully designed feeding, bath, bedding and play essentials for babies and toddlers.",
   icons: {

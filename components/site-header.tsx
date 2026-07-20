@@ -17,8 +17,8 @@ export async function SiteHeader() {
 
       <div className="border-b border-line bg-paper/95 backdrop-blur">
         <div className="mx-auto flex max-w-[1400px] items-center gap-6 px-6 py-4 lg:px-10">
-          <a href="#" className="shrink-0 text-2xl lowercase tracking-tight">
-            {BRAND}
+          <a href="/" className="shrink-0 flex items-center">
+            <img src="/Singular logo.svg" alt="Singular Cares" className="h-10 w-auto" />
           </a>
 
           <nav className="hidden items-center gap-7 lg:flex">

@@ -1,11 +1,10 @@
 import type { Tone } from "@/components/media";
 
-export const BRAND = "mushie";
+export const BRAND = "Singular Cares";
 
 export const ANNOUNCEMENT = "Free shipping on US orders $35+";
 
 export const NAV = [
-  { label: "Shop", href: "/shop" },
   { label: "Collections", href: "/collections" },
   { label: "Gifting", href: "/gifting" },
   { label: "About", href: "/about" },
@@ -138,7 +137,7 @@ export const PRESS = [
 export const TESTIMONIALS = [
   {
     quote:
-      "I love this sippy cup and another great Mushie product. Easy to use, clean and grow with your kiddo!",
+      "I love this sippy cup and another great Singular Cares product. Easy to use, clean and grow with your kiddo!",
     author: "Jennifer M.",
   },
   {

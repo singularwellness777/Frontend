@@ -4,7 +4,7 @@ import { CATEGORIES } from "@/lib/content";
 
 export function CategoryGrid() {
   return (
-    <section className="mx-auto max-w-[1400px] px-6 py-20 lg:px-10">
+    <section className="mx-auto max-w-[1400px] px-6 py-16 lg:px-10 lg:py-20">
       <SectionHeading className="mb-12">Shop by Category</SectionHeading>
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
         {CATEGORIES.map((category) => (

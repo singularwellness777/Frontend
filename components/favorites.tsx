@@ -1,6 +1,3 @@
-"use client";
-
-import { useState } from "react";
 import { ProductGrid } from "@/components/product-card";
 import { Button, SectionHeading } from "@/components/ui";
 import { FAVORITES, FAVORITE_TABS, type Product } from "@/lib/content";
@@ -26,41 +23,26 @@ export function Favorites({
     .sort();
   const tabs = [...known, ...extra];
 
-  const [active, setActive] = useState<string | null>(null);
-  const current = active && groups[active]?.length ? active : (tabs[0] ?? "");
+  const current = tabs[0] ?? "";
+  const products = (groups[current] ?? []).slice(0, 5);
 
   if (!tabs.length) return null;
 
   return (
-    <section className="mx-auto max-w-[1400px] px-6 py-20 lg:px-10">
-      <SectionHeading>Our Favorites</SectionHeading>
-
-      <div
-        role="tablist"
-        aria-label="Product categories"
-        className="no-scrollbar mt-8 mb-12 flex justify-start gap-2 overflow-x-auto md:justify-center"
-      >
-        {tabs.map((tab) => (
-          <button
-            key={tab}
-            role="tab"
-            aria-selected={tab === current}
-            onClick={() => setActive(tab)}
-            className={`eyebrow shrink-0 rounded-full border px-4 py-2 transition-colors ${
-              tab === current
-                ? "border-ink bg-ink text-paper"
-                : "border-line text-muted hover:border-ink/40 hover:text-ink"
-            }`}
-          >
-            {tab}
-          </button>
-        ))}
+    <section className="mx-auto max-w-[1400px] px-6 py-16 lg:px-10 lg:py-20">
+      <SectionHeading className="mb-7">Our Favorites</SectionHeading>
+      <div className="mb-12 flex justify-center">
+        <Button href="/shop" className="px-6 py-2.5">
+          Shop
+        </Button>
       </div>
 
-      <ProductGrid products={groups[current] ?? []} />
+      <ProductGrid products={products} />
 
       <div className="mt-12 flex justify-center">
-        <Button variant="outline">Shop {current}</Button>
+        <Button href="/shop" variant="outline">
+          Shop {current}
+        </Button>
       </div>
     </section>
   );

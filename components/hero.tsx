@@ -17,7 +17,7 @@ export function Hero({ media }: { media?: HomeMedia }) {
         tone="moss"
         alt={media?.alt ?? "Hero media for the storefront"}
         overlay={hasOverlayContent}
-        className="h-[68vh] min-h-[420px] w-full lg:h-[78vh]"
+        className="h-[52vh] min-h-[360px] w-full sm:h-[58vh] lg:h-[64vh]"
         src={media?.src}
         mediaType={media?.mediaType}
         poster={media?.poster}

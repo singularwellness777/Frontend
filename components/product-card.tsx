@@ -10,7 +10,7 @@ export function ProductCard({ product }: { product: Product }) {
         tone={product.tone}
         src={product.image}
         alt={product.name}
-        className="aspect-square w-full transition-transform duration-500 group-hover:scale-[1.02]"
+        className="aspect-[4/3] w-full bg-white transition-transform duration-500 group-hover:scale-[1.02]"
       />
       <div className="flex flex-col items-center gap-1.5">
         <h3 className="text-[11px] leading-tight tracking-[0.06em] text-ink">

@@ -18,7 +18,7 @@ export function FriggFeature() {
             crafted with safety and beauty in mind — promoting health and
             wellness for your little one.
           </p>
-          <Button href="#" variant="light" className="mt-8">
+          <Button href="/shop" variant="light" className="mt-8">
             Shop now
           </Button>
         </div>

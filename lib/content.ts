@@ -5,8 +5,6 @@ export const BRAND = "Singular Cares";
 export const ANNOUNCEMENT = "Free shipping on US orders $35+";
 
 export const NAV = [
-  { label: "Collections", href: "/collections" },
-  { label: "Gifting", href: "/gifting" },
   { label: "About", href: "/about" },
 ];
 

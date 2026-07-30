@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 
@@ -7,8 +8,6 @@ export default function NotFound() {
     { label: "Feeding", href: "/shop" },
     { label: "Bath & Care", href: "/shop" },
     { label: "Bedding", href: "/shop" },
-    { label: "Gifting", href: "/gifting" },
-    { label: "Collections", href: "/collections" },
   ];
 
   return (
@@ -37,23 +36,23 @@ export default function NotFound() {
           </h1>
 
           <p className="text-muted text-sm sm:text-base leading-relaxed mb-8 max-w-md">
-            The page or product you're looking for might have been moved, renamed, or is temporarily unavailable.
+            The page or product you&apos;re looking for might have been moved, renamed, or is temporarily unavailable.
           </p>
 
           {/* Action Buttons */}
           <div className="flex flex-wrap items-center justify-center gap-4 mb-12">
-            <a
+            <Link
               href="/shop"
               className="rounded-full bg-ink px-8 py-3.5 text-xs font-medium uppercase tracking-widest text-paper transition hover:bg-clay shadow-sm"
             >
               Explore Shop
-            </a>
-            <a
+            </Link>
+            <Link
               href="/"
               className="rounded-full border border-line bg-paper px-8 py-3.5 text-xs font-medium uppercase tracking-widest text-ink transition hover:bg-cream"
             >
               Return Home
-            </a>
+            </Link>
           </div>
 
           {/* Popular Categories */}
@@ -63,13 +62,13 @@ export default function NotFound() {
             </span>
             <div className="flex flex-wrap justify-center gap-2">
               {categories.map((cat) => (
-                <a
+                <Link
                   key={cat.label}
                   href={cat.href}
                   className="rounded-full border border-line/80 bg-cream/50 px-4 py-2 text-xs text-ink/80 transition hover:bg-cream hover:text-ink"
                 >
                   {cat.label}
-                </a>
+                </Link>
               ))}
             </div>
           </div>

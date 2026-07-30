@@ -17,7 +17,16 @@ export function CartBadge() {
 
       if (!supabase) return;
       try {
-        const { data: { user } } = await supabase.auth.getUser();
+        // Reading the cached session avoids an unnecessary Auth API request
+        // whenever a guest page renders. Database RLS still validates the
+        // session token when a signed-in user's cart is queried.
+        const {
+          data: { session },
+          error: authError,
+        } = await supabase.auth.getSession();
+        if (authError) return;
+
+        const user = session?.user;
         if (user) {
           const { data: dbCarts } = await supabase
             .from("carts")
@@ -37,17 +46,18 @@ export function CartBadge() {
     loadCartCount();
 
     // Event listener for cart updates
-    const handleCartUpdate = (e: CustomEvent<{ count?: number }>) => {
-      if (typeof e.detail?.count === "number") {
-        setCount(e.detail.count);
+    const handleCartUpdate = (event: Event) => {
+      const { detail } = event as CustomEvent<{ count?: number }>;
+      if (typeof detail?.count === "number") {
+        setCount(detail.count);
       } else {
         const localItems = getLocalCart();
         setCount(localItems.reduce((acc, i) => acc + i.quantity, 0));
       }
     };
 
-    window.addEventListener("cart-updated" as any, handleCartUpdate as any);
-    return () => window.removeEventListener("cart-updated" as any, handleCartUpdate as any);
+    window.addEventListener("cart-updated", handleCartUpdate);
+    return () => window.removeEventListener("cart-updated", handleCartUpdate);
   }, []);
 
   if (count <= 0) return null;

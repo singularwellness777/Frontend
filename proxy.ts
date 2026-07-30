@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   const url = request.nextUrl;
   const response = NextResponse.next();
 
@@ -30,6 +30,6 @@ export const config = {
      * - _next/image (image optimization files)
      * - favicon.ico, tab-icon.svg (favicon files)
      */
-    "/((?!_next/static|_next/image|favicon.ico|tab-icon.svg).*)",
+    "/((?!api|_next/static|_next/image|favicon.ico|tab-icon.svg).*)",
   ],
 };

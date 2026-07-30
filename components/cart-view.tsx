@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import {
   getLocalCart,
@@ -11,29 +12,6 @@ import {
   type CartItem,
 } from "@/lib/cart-store";
 import type { User } from "@supabase/supabase-js";
-
-const INITIAL_CART_ITEMS: CartItem[] = [
-  {
-    id: "c1",
-    slug: "silicone-baby-bib",
-    name: "Silicone Baby Bib",
-    price: 16.0,
-    priceString: "$16.00",
-    image: "https://vtfnzovghklayryozniz.supabase.co/storage/v1/object/public/media/310a5250-27fa-4def-adf7-d24de3700619.webp",
-    quantity: 1,
-    category: "Feeding",
-  },
-  {
-    id: "c2",
-    slug: "mini-toddler-bike",
-    name: "Mini Toddler Bike",
-    price: 89.0,
-    priceString: "$89.00",
-    image: "https://vtfnzovghklayryozniz.supabase.co/storage/v1/object/public/media/310a5250-27fa-4def-adf7-d24de3700619.webp",
-    quantity: 1,
-    category: "Play",
-  },
-];
 
 export function CartView() {
   const [user, setUser] = useState<User | null>(null);
@@ -48,11 +26,7 @@ export function CartView() {
   useEffect(() => {
     async function loadCartAndUser() {
       // 1. First get items from local cart store
-      let currentItems = getLocalCart();
-      if (currentItems.length === 0) {
-        currentItems = INITIAL_CART_ITEMS;
-        saveLocalCart(currentItems);
-      }
+      const currentItems = getLocalCart();
       setItems(currentItems);
 
       if (!supabase) {
@@ -61,7 +35,15 @@ export function CartView() {
       }
 
       try {
-        const { data: { user } } = await supabase.auth.getUser();
+        // Use the locally cached session for cart hydration. Calling getUser()
+        // here makes every cart visit depend on a separate Auth API request.
+        const {
+          data: { session },
+          error: authError,
+        } = await supabase.auth.getSession();
+        if (authError) return;
+
+        const user = session?.user ?? null;
         setUser(user);
 
         if (user) {
@@ -227,22 +209,22 @@ export function CartView() {
           <p className="text-xs text-muted leading-relaxed">
             Thank you for your order. We will follow up shortly to confirm details.
           </p>
-          <a
+          <Link
             href="/account"
             className="inline-block rounded-full bg-ink px-8 py-3 text-xs uppercase tracking-widest text-paper hover:bg-clay transition mt-4"
           >
             View My Account
-          </a>
+          </Link>
         </div>
       ) : items.length === 0 ? (
         <div className="py-16 text-center space-y-4">
           <p className="text-lg text-muted">Your bag is currently empty.</p>
-          <a
+          <Link
             href="/shop"
             className="inline-block rounded-full bg-ink px-8 py-3.5 text-xs uppercase tracking-widest text-paper hover:bg-clay transition"
           >
             Continue Shopping
-          </a>
+          </Link>
         </div>
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
@@ -299,9 +281,9 @@ export function CartView() {
             </div>
 
             <div className="flex justify-between items-center pt-2">
-              <a href="/shop" className="text-xs uppercase tracking-wider text-muted hover:text-ink transition">
+              <Link href="/shop" className="text-xs uppercase tracking-wider text-muted hover:text-ink transition">
                 ← Continue Shopping
-              </a>
+              </Link>
             </div>
           </div>
 

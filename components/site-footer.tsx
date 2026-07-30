@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { BRAND } from "@/lib/content";
 
 const COLUMNS = [
@@ -12,9 +13,9 @@ export function SiteFooter() {
     <footer className="bg-cream">
       <div className="mx-auto grid max-w-[1400px] gap-12 px-6 py-16 lg:grid-cols-[1.2fr_2fr_1.2fr] lg:px-10">
         <div>
-          <a href="/" className="inline-block">
+          <Link href="/" className="inline-block">
             <img src="/Singular logo.svg" alt="Singular Cares" className="h-12 md:h-14 w-auto object-contain" />
-          </a>
+          </Link>
         </div>
 
         <div className="grid grid-cols-2 gap-8 md:grid-cols-4">
@@ -64,9 +65,9 @@ export function SiteFooter() {
             © {new Date().getFullYear()} {BRAND}. All rights reserved.
           </p>
           <div className="flex gap-4 text-[10px] tracking-wide text-muted">
-            <a href="#" className="hover:text-ink">Privacy</a>
-            <a href="#" className="hover:text-ink">Terms</a>
-            <a href="#" className="hover:text-ink">Accessibility</a>
+            <a href="/privacy" className="hover:text-ink">Privacy</a>
+            <a href="/terms" className="hover:text-ink">Terms</a>
+            <a href="/accessibility" className="hover:text-ink">Accessibility</a>
           </div>
         </div>
       </div>

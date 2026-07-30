@@ -14,13 +14,21 @@ export interface CartItem {
 }
 
 const LOCAL_STORAGE_KEY = "singular_cares_cart";
+const LEGACY_DEMO_ITEM_IDS = new Set(["c1", "c2"]);
 
 export function getLocalCart(): CartItem[] {
   if (typeof window === "undefined") return [];
   try {
     const raw = localStorage.getItem(LOCAL_STORAGE_KEY);
     if (!raw) return [];
-    return JSON.parse(raw);
+    const storedItems = JSON.parse(raw) as CartItem[];
+    if (!Array.isArray(storedItems)) return [];
+
+    const items = storedItems.filter((item) => !LEGACY_DEMO_ITEM_IDS.has(item.id));
+    if (items.length !== storedItems.length) {
+      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(items));
+    }
+    return items;
   } catch {
     return [];
   }

@@ -76,8 +76,27 @@ export interface SiteSettings {
 
 type Row = Record<string, unknown>;
 
+// Supabase requests can take a few seconds on a cold connection. A one-second
+// cutoff made successful reads look like empty tables, which left data-driven
+// storefront sections blank. Keep the page bounded without racing normal
+// database latency.
+const QUERY_TIMEOUT_MS = 10_000;
+
 const str = (v: unknown) => (typeof v === "string" ? v : "");
 const arr = <T,>(v: unknown): T[] => (Array.isArray(v) ? (v as T[]) : []);
+
+function withTimeout<T>(
+  promise: PromiseLike<T>,
+): Promise<T | null> {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  const timeout = new Promise<null>((resolve) => {
+    timer = setTimeout(() => resolve(null), QUERY_TIMEOUT_MS);
+  });
+
+  return Promise.race([Promise.resolve(promise), timeout]).finally(() => {
+    if (timer) clearTimeout(timer);
+  });
+}
 
 function mapProduct(row: Row): Product {
   const images = arr<string>(row.images);
@@ -147,7 +166,15 @@ async function query<T>(
 ): Promise<T[]> {
   if (!supabase) return [];
   try {
-    const { data, error } = await build(supabase.from(table));
+    const result = await withTimeout(build(supabase.from(table)));
+    if (!result) {
+      console.error(
+        `[storefront] ${table}: query timed out after ${QUERY_TIMEOUT_MS}ms`,
+      );
+      return [];
+    }
+
+    const { data, error } = result;
     if (error) {
       console.error(`[storefront] ${table}: ${error.message}`);
       return [];

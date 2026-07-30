@@ -18,8 +18,10 @@ import { getStorefrontProducts } from "@/lib/storefront";
 export const dynamic = "force-dynamic";
 
 export default async function Home() {
-  const products = await getStorefrontProducts();
-  const homeMedia = await getHomeMedia();
+  const [products, homeMedia] = await Promise.all([
+    getStorefrontProducts(),
+    getHomeMedia(),
+  ]);
   const heroMedia = homeMedia.find((item) => item.placement === "campaign");
   const live = products.all.length > 0;
 

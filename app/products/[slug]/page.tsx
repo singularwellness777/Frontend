@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { ProductGrid } from "@/components/product-card";
-import { getProductBySlug, getProducts, getReviews, summarizeRatings } from "@/lib/data";
+import { getProductBySlug, getReviews } from "@/lib/data";
 import { getStorefrontProducts } from "@/lib/storefront";
 import { BEST_SELLERS, FAVORITES } from "@/lib/content";
 import { ProductDetailView } from "@/components/product-detail-view";
@@ -18,9 +18,9 @@ export default async function ProductPage({ params }: ProductPageProps) {
   const slug = resolvedParams.slug;
 
   // 1. Fetch real product from database
-  let dbProduct = await getProductBySlug(slug);
-  let reviews = await getReviews();
-  let productReviews = reviews.filter((r) => r.productSlug === slug);
+  const dbProduct = await getProductBySlug(slug);
+  const reviews = await getReviews();
+  const productReviews = reviews.filter((r) => r.productSlug === slug);
 
   // 2. Fallback to static catalogue if not found in database directly
   let fallbackProduct = null;

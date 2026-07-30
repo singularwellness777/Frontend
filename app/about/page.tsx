@@ -241,8 +241,8 @@ export default async function AboutPage() {
 
         {/* Familiar place */}
         <section>
-          <div className="mx-auto max-w-[1500px] px-6 py-24 sm:px-10 lg:px-16 lg:py-36">
-            <div className="grid items-start gap-14 lg:grid-cols-[0.78fr_1.22fr] lg:gap-24">
+          <div className="mx-auto max-w-[1900px] px-6 py-24 sm:px-10 lg:px-16 lg:py-36">
+            <div className="grid items-start gap-14 lg:grid-cols-[minmax(360px,480px)_minmax(0,1fr)] lg:gap-[52px]">
               <div className="lg:sticky lg:top-28">
                 <p className="eyebrow text-clay">Made for every day</p>
                 <h2 className="mt-5 text-4xl leading-tight font-light tracking-tight sm:text-6xl">
@@ -264,11 +264,11 @@ export default async function AboutPage() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-3 sm:gap-5">
+              <div className="grid grid-cols-2 justify-end gap-3 sm:gap-5">
                 {FAMILIAR_MOMENTS.map((moment, index) => (
                   <figure
                     key={moment.title}
-                    className={`w-full max-w-[450px] justify-self-center ${
+                    className={`w-full max-w-[600px] justify-self-end ${
                       index % 2 ? "sm:translate-y-12" : ""
                     }`}
                   >
@@ -276,7 +276,7 @@ export default async function AboutPage() {
                       src={moment.src}
                       tone={moment.tone}
                       alt={`${moment.title} on a Singular quilted mat`}
-                      className="aspect-[3/4] w-full"
+                      className="aspect-[4/3] w-full"
                     />
                     <figcaption className="flex justify-between border-b border-line py-4">
                       <span className="eyebrow text-clay">{moment.label}</span>

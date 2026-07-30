@@ -36,10 +36,30 @@ const CONSTRUCTION = [
 ];
 
 const FAMILIAR_MOMENTS = [
-  { label: "Morning", title: "Tummy time", tone: "sand" as Tone },
-  { label: "Afternoon", title: "Quiet time", tone: "rose" as Tone },
-  { label: "Everyday", title: "Play time", tone: "sage" as Tone },
-  { label: "Away", title: "Travel ready", tone: "stone" as Tone },
+  {
+    label: "Morning",
+    title: "Tummy time",
+    tone: "sand" as Tone,
+    src: "/Tummy time.png",
+  },
+  {
+    label: "Afternoon",
+    title: "Quiet time",
+    tone: "rose" as Tone,
+    src: "/Quiet time.png",
+  },
+  {
+    label: "Everyday",
+    title: "Play time",
+    tone: "sage" as Tone,
+    src: "/Play time.png",
+  },
+  {
+    label: "Away",
+    title: "Travel ready",
+    tone: "stone" as Tone,
+    src: "/Travel ready.png",
+  },
 ];
 
 function SignOff({ light = false }: { light?: boolean }) {
@@ -143,7 +163,7 @@ export default async function AboutPage() {
 
               <figure className="pt-6">
                 <Media
-                  src={image(1)}
+                  src="/magnific.png"
                   tone="rose"
                   alt="The quilting and hand-finished edge of a Singular mat"
                   className="aspect-[16/10] w-full"
@@ -248,13 +268,15 @@ export default async function AboutPage() {
                 {FAMILIAR_MOMENTS.map((moment, index) => (
                   <figure
                     key={moment.title}
-                    className={index % 2 ? "sm:translate-y-12" : ""}
+                    className={`w-full max-w-[450px] justify-self-center ${
+                      index % 2 ? "sm:translate-y-12" : ""
+                    }`}
                   >
                     <Media
-                      src={image(index + 2)}
+                      src={moment.src}
                       tone={moment.tone}
                       alt={`${moment.title} on a Singular quilted mat`}
-                      className="aspect-[4/5] w-full"
+                      className="aspect-[3/4] w-full"
                     />
                     <figcaption className="flex justify-between border-b border-line py-4">
                       <span className="eyebrow text-clay">{moment.label}</span>

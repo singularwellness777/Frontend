@@ -94,7 +94,7 @@ export default async function AboutPage() {
 
           <div className="relative min-h-[520px] bg-cream lg:min-h-full">
             <Media
-              src={image(0)}
+              src="/03.png"
               tone="sand"
               alt="A Singular quilted mat, made as a familiar place for baby"
               className="absolute inset-0 h-full w-full"

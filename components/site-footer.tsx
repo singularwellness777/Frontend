@@ -137,7 +137,21 @@ export function SiteFooter() {
       {/* Bottom Legal Bar */}
       <div className="border-t border-line bg-paper/70">
         <div className="mx-auto flex max-w-[1400px] flex-col items-center gap-4 px-6 py-5 text-[11px] tracking-wide text-muted sm:flex-row sm:justify-between lg:px-10">
-          <p>© {new Date().getFullYear()} {BRAND}. All rights reserved.</p>
+          <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 sm:justify-start">
+            <p>© {new Date().getFullYear()} {BRAND}. All rights reserved.</p>
+            <span aria-hidden className="hidden sm:inline">·</span>
+            <p>
+              Developed By:{" "}
+              <a
+                href="https://www.mobintix.app"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-ink underline-offset-4 transition-colors hover:underline"
+              >
+                Mobintix Infotech
+              </a>
+            </p>
+          </div>
           <div className="flex flex-wrap items-center gap-6">
             <Link href="/privacy" className="transition-colors hover:text-ink">
               Privacy Policy

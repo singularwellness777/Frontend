@@ -6,6 +6,7 @@ export const ANNOUNCEMENT = "Free shipping on US orders $35+";
 
 export const NAV = [
   { label: "About", href: "/about" },
+  { label: "Shop", href: "/shop" },
 ];
 
 export type Product = {

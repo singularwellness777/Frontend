@@ -4,30 +4,39 @@ import { Button } from "@/components/ui";
 export function FriggFeature() {
   return (
     <section className="grid md:grid-cols-2">
-      <div className="flex items-center bg-clay px-8 py-20 text-paper lg:px-20">
-        <div className="mx-auto max-w-sm text-center">
-          <div className="mb-6 flex items-center justify-center gap-2">
+      <div className="flex items-center bg-clay px-8 py-20 text-paper lg:px-20 lg:py-28">
+        <div className="mx-auto max-w-md text-center md:text-left">
+          <div className="mb-6 flex items-center justify-center gap-2.5 md:justify-start">
             <DanishFlag />
-            <span className="eyebrow opacity-90">The best for our babies</span>
+            <span className="eyebrow opacity-90">Designed in Denmark</span>
           </div>
-          <p className="text-4xl tracking-[0.15em] lg:text-5xl">
-            FRIGG<sup className="text-base align-super">®</sup>
-          </p>
-          <p className="mt-6 text-sm leading-relaxed opacity-90">
+
+          <h2 className="text-4xl font-light tracking-[0.14em] lg:text-5xl">
+            FRIGG<sup className="ml-0.5 align-super text-base">®</sup>
+          </h2>
+
+          <p className="mt-6 text-sm leading-relaxed text-paper/90">
             Designed and manufactured in Hvidovre, Denmark, every pacifier is
-            crafted with safety and beauty in mind — promoting health and
-            wellness for your little one.
+            crafted with safety and quiet beauty in mind — promoting comfort,
+            health, and wellness for your little one.
           </p>
-          <Button href="/shop" variant="light" className="mt-8">
-            Shop now
-          </Button>
+
+          <div className="mt-8 flex flex-wrap items-center justify-center gap-4 md:justify-start">
+            <Button href="/shop" variant="light">
+              Shop pacifiers
+            </Button>
+            <span className="eyebrow text-[10px] text-paper/75">
+              100% Natural Rubber &amp; Silicone
+            </span>
+          </div>
         </div>
       </div>
 
       <Media
         tone="rose"
-        alt="Wall display of FRIGG pacifiers in every colorway"
-        className="min-h-[380px]"
+        src="/03.png"
+        alt="Wall display of FRIGG pacifiers in soft neutral colorways"
+        className="min-h-[400px] md:min-h-[520px]"
       />
     </section>
   );

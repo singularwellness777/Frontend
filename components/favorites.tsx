@@ -1,3 +1,6 @@
+"use client";
+
+import { useState } from "react";
 import { ProductGrid } from "@/components/product-card";
 import { Button, SectionHeading } from "@/components/ui";
 import { FAVORITES, FAVORITE_TABS, type Product } from "@/lib/content";
@@ -23,18 +26,44 @@ export function Favorites({
     .sort();
   const tabs = [...known, ...extra];
 
-  const current = tabs[0] ?? "";
-  const products = (groups[current] ?? []).slice(0, 5);
+  const [selected, setSelected] = useState<string>(tabs[0] ?? "");
+  const current = tabs.includes(selected) ? selected : tabs[0] ?? "";
+  const products = (groups[current] ?? []).slice(0, 4);
 
   if (!tabs.length) return null;
 
   return (
-    <section className="mx-auto max-w-[1400px] px-6 py-16 lg:px-10 lg:py-20">
-      <SectionHeading className="mb-7">Our Favorites</SectionHeading>
-      <div className="mb-12 flex justify-center">
-        <Button href="/shop" className="px-6 py-2.5">
-          Shop
-        </Button>
+    <section className="mx-auto max-w-[1400px] px-6 py-16 lg:px-10 lg:py-24">
+      <div className="mb-8 flex flex-col items-center text-center">
+        <p className="eyebrow mb-3 text-muted">Thoughtfully Curated</p>
+        <SectionHeading>Our Favorites</SectionHeading>
+      </div>
+
+      {/* Interactive Category Tabs */}
+      <div
+        role="tablist"
+        aria-label="Product categories"
+        className="no-scrollbar mb-12 flex items-center justify-start gap-2 overflow-x-auto border-b border-line pb-4 sm:justify-center sm:gap-3"
+      >
+        {tabs.map((tab) => {
+          const active = tab === current;
+          return (
+            <button
+              key={tab}
+              type="button"
+              role="tab"
+              aria-selected={active}
+              onClick={() => setSelected(tab)}
+              className={`eyebrow shrink-0 px-4 py-2 transition-colors ${
+                active
+                  ? "bg-ink text-paper"
+                  : "text-muted hover:bg-cream hover:text-ink"
+              }`}
+            >
+              {tab}
+            </button>
+          );
+        })}
       </div>
 
       <ProductGrid products={products} />

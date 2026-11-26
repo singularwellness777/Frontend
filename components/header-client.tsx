@@ -1,7 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { CartBadge } from "@/components/cart-badge";
+import { ANNOUNCEMENT } from "@/lib/content";
 import type { NavCategory } from "@/lib/data";
 
 export type NavItem = NavCategory | { label: string; href: string };
@@ -16,123 +18,141 @@ export function HeaderClient({ navItems }: { navItems: NavItem[] }) {
 
   return (
     <header className="sticky top-0 z-50">
-      <div className="border-b border-line bg-paper/95 backdrop-blur">
-        <div className="mx-auto flex max-w-[1400px] items-center justify-between gap-4 px-4 py-3 sm:px-6 sm:py-4 lg:px-10">
-          {/* Logo */}
-          <a href="/" className="shrink-0 flex items-center">
+      {/* Slim Editorial Announcement Bar */}
+      <div className="bg-ink px-4 py-2 text-center text-paper">
+        <p className="eyebrow text-[10px] tracking-[0.22em] text-paper/90">
+          {ANNOUNCEMENT}
+        </p>
+      </div>
+
+      {/* Main 3-Zone Navigation Bar */}
+      <div className="border-b border-line bg-paper/90 backdrop-blur-md">
+        <div className="mx-auto grid max-w-[1400px] grid-cols-[1fr_auto] items-center gap-4 px-4 py-3 sm:px-6 md:grid-cols-[1fr_auto_1fr] lg:px-10">
+          {/* Left: Desktop Navigation */}
+          <nav
+            aria-label="Primary navigation"
+            className="hidden items-center gap-6 md:flex lg:gap-8"
+          >
+            {navItems.map((item) => {
+              const href =
+                "href" in item && item.href
+                  ? item.href
+                  : "linkUrl" in item && item.linkUrl
+                    ? item.linkUrl
+                    : "/shop";
+              const subcategories =
+                "subcategories" in item ? item.subcategories : undefined;
+              const hasSubcategories =
+                Array.isArray(subcategories) && subcategories.length > 0;
+
+              return (
+                <div key={item.label} className="group relative py-1.5">
+                  <Link
+                    href={href}
+                    className="eyebrow relative flex items-center gap-1.5 text-[11px] font-medium text-ink/80 transition-colors hover:text-ink"
+                  >
+                    <span>{item.label}</span>
+                    {hasSubcategories && (
+                      <svg
+                        className="h-3 w-3 opacity-60 transition-transform duration-200 group-hover:rotate-180"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="1.8"
+                          d="M19 9l-7 7-7-7"
+                        />
+                      </svg>
+                    )}
+                    <span
+                      aria-hidden
+                      className="absolute inset-x-0 -bottom-1 h-px origin-left scale-x-0 bg-ink transition-transform duration-200 group-hover:scale-x-100"
+                    />
+                  </Link>
+
+                  {hasSubcategories ? (
+                    <div className="pointer-events-none absolute left-0 top-full z-50 hidden min-w-[220px] pt-3 opacity-0 transition-all duration-200 group-hover:pointer-events-auto group-hover:block group-hover:opacity-100">
+                      <div className="border border-line bg-paper p-2 shadow-xl">
+                        {subcategories.map((subcategory) => (
+                          <Link
+                            key={subcategory.label}
+                            href={subcategory.linkUrl || "/shop"}
+                            className="block px-3.5 py-2.5 text-xs tracking-wide text-ink/80 transition-colors hover:bg-cream hover:text-ink"
+                          >
+                            {subcategory.label}
+                          </Link>
+                        ))}
+                      </div>
+                    </div>
+                  ) : null}
+                </div>
+              );
+            })}
+          </nav>
+
+          {/* Center (Desktop) / Left (Mobile): Brand Logo */}
+          <Link
+            href="/"
+            className="flex items-center justify-start md:justify-center"
+          >
             <img
               src="/Singular logo.svg"
               alt="Singular Cares"
-              className="h-10 sm:h-12 md:h-14 w-auto object-contain"
+              className="h-10 w-auto object-contain sm:h-11 md:h-12"
             />
-          </a>
+          </Link>
 
-          <div className="flex items-center gap-4 sm:gap-8">
-            {/* Desktop Navigation */}
-            <nav className="hidden md:flex items-center gap-5 lg:gap-7">
-              {navItems.map((item, idx) => {
-                const href =
-                  "href" in item && item.href
-                    ? item.href
-                    : "linkUrl" in item && item.linkUrl
-                    ? item.linkUrl
-                    : "/shop";
-                const subcategories =
-                  "subcategories" in item ? item.subcategories : undefined;
-                const hasSubcategories =
-                  Array.isArray(subcategories) && subcategories.length > 0;
+          {/* Right: Actions & Mobile Menu Toggle */}
+          <div className="flex items-center justify-end gap-3 sm:gap-5">
+            <Link
+              href="/account"
+              aria-label="Account"
+              className="flex items-center gap-1.5 p-1.5 text-ink/80 transition-colors hover:text-ink"
+            >
+              <UserIcon />
+              <span className="eyebrow hidden text-[10px] xl:inline">
+                Account
+              </span>
+            </Link>
 
-                const isRightAligned = idx >= navItems.length - 2;
+            <Link
+              href="/cart"
+              aria-label="Cart"
+              className="relative flex items-center gap-1.5 p-1.5 text-ink/80 transition-colors hover:text-ink"
+            >
+              <BagIcon />
+              <span className="eyebrow hidden text-[10px] xl:inline">Bag</span>
+              <CartBadge />
+            </Link>
 
-                return (
-                  <div key={item.label} className="group relative py-2">
-                    <a
-                      href={href}
-                      className="eyebrow text-ink/80 transition-colors hover:text-ink flex items-center gap-1 text-xs uppercase tracking-wider font-medium"
-                    >
-                      {item.label}
-                      {hasSubcategories && (
-                        <svg
-                          className="h-3 w-3 opacity-60 transition-transform duration-200 group-hover:rotate-180"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth="2"
-                            d="M19 9l-7 7-7-7"
-                          />
-                        </svg>
-                      )}
-                    </a>
-                    {hasSubcategories ? (
-                      <div
-                        className={`pointer-events-none absolute top-full z-50 pt-2 hidden min-w-[200px] opacity-0 transition-all duration-200 group-hover:pointer-events-auto group-hover:block group-hover:opacity-100 ${
-                          isRightAligned ? "right-0" : "left-0"
-                        }`}
-                      >
-                        <div className="rounded-2xl border border-line bg-paper p-3 shadow-xl space-y-1">
-                          {subcategories.map((subcategory) => (
-                            <a
-                              key={subcategory.label}
-                              href={subcategory.linkUrl || "#"}
-                              className="block rounded-xl px-3 py-2 text-xs font-medium text-ink/80 transition-colors hover:bg-cream hover:text-ink"
-                            >
-                              {subcategory.label}
-                            </a>
-                          ))}
-                        </div>
-                      </div>
-                    ) : null}
-                  </div>
-                );
-              })}
-            </nav>
-
-            {/* Right Icons: Account, Cart & Mobile Menu Toggle */}
-            <div className="flex items-center gap-4 sm:gap-5">
-              <a
-                href="/account"
-                aria-label="Account"
-                className="hover:text-clay transition p-1"
-              >
-                <UserIcon />
-              </a>
-              <a
-                href="/cart"
-                aria-label="Cart"
-                className="relative hover:text-clay transition p-1"
-              >
-                <BagIcon />
-                <CartBadge />
-              </a>
-
-              {/* Hamburger Button (Mobile Only) */}
-              <button
-                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                aria-label="Toggle Navigation Menu"
-                className="md:hidden p-1.5 text-ink hover:text-clay transition"
-              >
-                {mobileMenuOpen ? <CloseIcon /> : <MenuIcon />}
-              </button>
-            </div>
+            {/* Hamburger Button (Mobile Only) */}
+            <button
+              type="button"
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              aria-label="Toggle Navigation Menu"
+              aria-expanded={mobileMenuOpen}
+              className="p-1.5 text-ink transition-colors hover:text-clay md:hidden"
+            >
+              {mobileMenuOpen ? <CloseIcon /> : <MenuIcon />}
+            </button>
           </div>
         </div>
       </div>
 
       {/* Mobile Drawer Menu */}
       {mobileMenuOpen && (
-        <div className="md:hidden fixed inset-x-0 top-[61px] bottom-0 z-40 bg-paper/98 backdrop-blur border-b border-line overflow-y-auto px-6 py-6 animate-fade-in shadow-2xl">
+        <div className="fixed inset-x-0 bottom-0 top-[92px] z-40 overflow-y-auto border-b border-line bg-paper/98 px-6 py-6 shadow-2xl backdrop-blur md:hidden">
           <div className="flex flex-col space-y-4">
             {navItems.map((item) => {
               const href =
                 "href" in item && item.href
                   ? item.href
                   : "linkUrl" in item && item.linkUrl
-                  ? item.linkUrl
-                  : "/shop";
+                    ? item.linkUrl
+                    : "/shop";
               const subcategories =
                 "subcategories" in item ? item.subcategories : undefined;
               const hasSubcategories =
@@ -140,19 +160,21 @@ export function HeaderClient({ navItems }: { navItems: NavItem[] }) {
               const isOpen = openAccordion === item.label;
 
               return (
-                <div key={item.label} className="border-b border-line/50 pb-3">
+                <div key={item.label} className="border-b border-line/60 pb-3">
                   <div className="flex items-center justify-between">
-                    <a
+                    <Link
                       href={href}
                       onClick={() => setMobileMenuOpen(false)}
-                      className="text-base font-light tracking-wide text-ink hover:text-clay uppercase"
+                      className="text-base font-light tracking-wide text-ink uppercase hover:text-clay"
                     >
                       {item.label}
-                    </a>
+                    </Link>
                     {hasSubcategories && (
                       <button
+                        type="button"
                         onClick={() => toggleAccordion(item.label)}
                         className="p-2 text-ink/70"
+                        aria-label={`Expand ${item.label}`}
                       >
                         <svg
                           className={`h-4 w-4 transition-transform duration-200 ${
@@ -174,22 +196,39 @@ export function HeaderClient({ navItems }: { navItems: NavItem[] }) {
                   </div>
 
                   {hasSubcategories && isOpen && (
-                    <div className="mt-2 pl-4 space-y-2 border-l border-line/60">
+                    <div className="mt-2 space-y-2 border-l border-line pl-4">
                       {subcategories.map((sub) => (
-                        <a
+                        <Link
                           key={sub.label}
-                          href={sub.linkUrl || "#"}
+                          href={sub.linkUrl || "/shop"}
                           onClick={() => setMobileMenuOpen(false)}
-                          className="block text-sm text-muted hover:text-ink py-1"
+                          className="block py-1 text-sm text-muted hover:text-ink"
                         >
                           {sub.label}
-                        </a>
+                        </Link>
                       ))}
                     </div>
                   )}
                 </div>
               );
             })}
+
+            <div className="grid grid-cols-2 gap-3 pt-4">
+              <Link
+                href="/account"
+                onClick={() => setMobileMenuOpen(false)}
+                className="eyebrow border border-line bg-cream/60 py-3 text-center text-[10px] text-ink"
+              >
+                Account
+              </Link>
+              <Link
+                href="/cart"
+                onClick={() => setMobileMenuOpen(false)}
+                className="eyebrow bg-ink py-3 text-center text-[10px] text-paper"
+              >
+                View Bag
+              </Link>
+            </div>
           </div>
         </div>
       )}
@@ -199,16 +238,36 @@ export function HeaderClient({ navItems }: { navItems: NavItem[] }) {
 
 function MenuIcon() {
   return (
-    <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.8">
-      <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+    <svg
+      className="h-5 w-5"
+      fill="none"
+      viewBox="0 0 24 24"
+      stroke="currentColor"
+      strokeWidth="1.8"
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"
+      />
     </svg>
   );
 }
 
 function CloseIcon() {
   return (
-    <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.8">
-      <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+    <svg
+      className="h-5 w-5"
+      fill="none"
+      viewBox="0 0 24 24"
+      stroke="currentColor"
+      strokeWidth="1.8"
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M6 18L18 6M6 6l12 12"
+      />
     </svg>
   );
 }

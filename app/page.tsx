@@ -2,11 +2,8 @@ import { CategoryGrid } from "@/components/category-grid";
 import { Favorites } from "@/components/favorites";
 import { FriggFeature } from "@/components/frigg-feature";
 import { Hero } from "@/components/hero";
-import { ShopTheLook } from "@/components/shop-the-look";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
-import { SocialProducts } from "@/components/social-products";
-import { BEST_SELLERS, FAVORITES } from "@/lib/content";
 import { getHomeMedia } from "@/lib/data";
 import { getStorefrontProducts } from "@/lib/storefront";
 
@@ -23,10 +20,6 @@ export default async function Home() {
     getHomeMedia(),
   ]);
   const heroMedia = homeMedia.find((item) => item.placement === "campaign");
-  const live = products.all.length > 0;
-
-  const bestSellers = live ? products.all.slice(0, 4) : BEST_SELLERS;
-  const socialProducts = live ? products.all.slice(0, 4) : FAVORITES.Feeding;
 
   return (
     <>
@@ -39,10 +32,6 @@ export default async function Home() {
         <FriggFeature />
 
         <CategoryGrid />
-
-        <ShopTheLook />
-
-        <SocialProducts products={socialProducts} fallbackProducts={bestSellers} />
       </main>
       <SiteFooter />
     </>

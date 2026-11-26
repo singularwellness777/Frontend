@@ -66,11 +66,20 @@ export function SiteFooter() {
             <div>
               <h3 className="eyebrow mb-4 text-ink">Connect</h3>
               <p className="text-xs leading-relaxed text-muted">
-                <span className="text-ink">@singularcares</span>
+                <a
+                  href="https://www.instagram.com/singularcares/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-ink underline-offset-4 transition-colors hover:underline"
+                >
+                  @singularcares
+                </a>
               </p>
               <div className="mt-4 flex items-center gap-2.5">
                 <a
-                  href="#"
+                  href="https://www.instagram.com/singularcares/"
+                  target="_blank"
+                  rel="noopener noreferrer"
                   aria-label="Instagram"
                   className="flex h-9 w-9 items-center justify-center border border-line bg-paper text-ink transition-colors hover:border-ink hover:bg-ink hover:text-paper"
                 >
